@@ -1,0 +1,183 @@
+---
+title: Docking
+description: Build a workspace of panels in tab groups that the user drags between groups, to edges and out into windows of their own, and save the layout.
+---
+
+HammerUI's docking turns an area of a window into a workspace of panels. Panels sit as tabs in groups, groups are arranged in resizable
+splits, and the user rearranges them by dragging tabs: onto another group, against the side of one, or out of the window into a window of its
+own. The arrangement is a `DockLayout`, a model you create in code, change through its methods and save as JSON. `DockHost` shows it.
+
+## Show a workspace
+
+A workspace needs three things: the panels, a layout that places them, and a `DockHost` to show both.
+
+```xml
+<Window xmlns:dock="using:HammerUI.Docking" ...>
+  <dock:DockHost x:Name="Workspace" />
+</Window>
+```
+
+```csharp
+using HammerUI;
+using HammerUI.Docking;
+
+var panels = new DockContentProvider
+{
+    new DockablePanel("explorer", "Explorer", () => new ExplorerView()) { Icon = Icons.FolderOpen, CanClose = false },
+    new DockablePanel("editor", "Editor", () => new EditorView()) { Icon = Icons.FileCode },
+    new DockablePanel("output", "Output", () => new OutputView()) { Icon = Icons.Terminal },
+    new DockablePanel("problems", "Problems", () => new ProblemsView()) { Icon = Icons.AlertCircle },
+};
+
+var layout = new DockLayout(
+    new DockSplit("root", DockOrientation.Horizontal,
+        new DockGroup("left", "explorer") { Size = 0.2 },
+        new DockSplit("main", DockOrientation.Vertical,
+            new DockGroup("center", "editor") { Size = 0.7 },
+            new DockGroup("bottom", "output", "problems") { Size = 0.3 })
+        { Size = 0.8 }));
+
+Workspace.ContentProvider = panels;
+Workspace.Layout = layout;
+```
+
+Each panel's content is created the first time the panel shows, and the host keeps that control for the panel's lifetime: while it moves
+between groups and windows, hides behind another tab, or is closed and reopened. State such as scroll positions and text selections survives
+every rearrangement.
+
+## Panels
+
+A panel implements `IDockPanel`; `DockablePanel` is a ready-made one whose content comes from a factory.
+
+| Member | What it does |
+| --- | --- |
+| `Id` | The id the layout refers to the panel by. Keep it stable: saved layouts use it. |
+| `Title`, `Icon` | The tab's text and its line icon. |
+| `IconBrush`, `IsIconFilled` | The icon's own color, such as a file type's, kept while the tab is active; and whether the icon is filled rather than stroked. Null and false draw it like the title. |
+| `CanClose` | Whether the tab has a close button and can be closed. |
+| `Content` | The panel's control, created once. |
+| `HeaderActions` | Controls shown at the right of the tab strip while the panel is active, such as small icon buttons. |
+| `Description` | Muted text after the title, such as the folder that tells two files of the same name apart. |
+| `IsModified` | Whether the panel has unsaved changes; the tab shows a dot in place of its close button until hovered. |
+| `ToolTip` | The tab's tooltip, such as a file's full path; the title when null. |
+
+`DockablePanel` raises `PropertyChanged`, so setting its `Title`, `Icon`, `CanClose` or `HeaderActions` updates the tab. A panel of your own
+can implement `INotifyPropertyChanged` to do the same. `IconBrush`, `IsIconFilled`, `Description`, `IsModified` and `ToolTip` have defaults, so panels that do not need them leave them out.
+
+`DockContentProvider` holds a fixed set of panels. For panels created on demand, implement `IDockContentProvider.GetPanel(panelId)` and
+return null for ids you do not know.
+
+## The layout
+
+A `DockLayout` is a tree. Its root is the main window's; each floating window has a tree of its own.
+
+| Node | What it is |
+| --- | --- |
+| `DockSplit` | Divides its space between children along `DockOrientation.Horizontal` (side by side) or `Vertical` (stacked). |
+| `DockGroup` | A group of panel ids shown as tabs; `ActivePanel` is the one whose content shows. |
+
+Every node has an `Id`, unique in the layout, and a `Size`: its share of the parent split relative to its siblings. A null id gets a
+generated one.
+
+Change the layout through its methods; the host follows every change:
+
+| Method | What it does |
+| --- | --- |
+| `ActivatePanel(panelId)` | Shows a panel's tab and focuses its group. |
+| `EnsureVisible(panelId)` | Makes a panel visible: reopens it where it was, or where the fallback layout puts it, and expands collapsed parents. |
+| `MovePanel(panelId, groupId, index)` | Moves a panel into a group, at a tab index. |
+| `DockPanel(panelId, targetId, edge, fraction)` | Moves a panel into a new group beside a node, on a `DockEdge`, taking a fraction of the space. |
+| `ClosePanel(panelId)` | Removes a panel and remembers where it was. |
+| `FloatPanel(panelId, position, size)` | Moves a panel into a new floating window. |
+| `ReturnPanel(panelId)` | Moves a panel from a floating window back to where it was. |
+| `CloseFloat(floatId)` | Closes a floating window and returns its panels. |
+| `ToggleMaximize(groupId)`, `Restore()` | Fills the window with one group, and goes back. |
+| `SetCollapsed(nodeId, collapsed)`, `ToggleCollapsed(nodeId)` | Hides a node, such as a side region; its siblings take its space. |
+| `Resize(splitId, index, leading, trailing)` | Sets the sizes of two neighbouring children, as dragging the splitter between them does. |
+
+`FindPanel`, `FindNode`, `Contains`, `Panels`, `Groups`, `Floats` and `ClosedPanels` describe the layout. `Changed` is raised after every
+change, with a `DockChangeKind` that says whether the structure, the active tabs, the sizes or a floating window's bounds changed, so you can
+save only what needs saving.
+
+### The fallback layout
+
+Set `Fallback` to your default layout. When a panel that was never placed must be shown, such as a panel a plugin adds after the user saved
+their layout, `EnsureVisible` puts it where the fallback has it.
+
+```csharp
+var layout = CreateDefaultLayout();
+layout.Fallback = CreateDefaultLayout();
+```
+
+## What the user can do
+
+| Action | Result |
+| --- | --- |
+| Drag a tab | Guides show where it can land: among another group's tabs, against any side of a group or of the workspace. |
+| Drag a tab out of the window | The panel opens in a window of its own, under the pointer. |
+| <Keys>Escape</Keys> while dragging | Cancels the drag. |
+| Double-click a tab | Maximizes its group, or restores the layout. |
+| Middle-click a tab | Closes it, if it can close. |
+| Right-click a tab | **Close**, **Close other tabs**, **Maximize** or **Restore layout**, **Move to new window**, and in a floating window **Move to main window**. |
+| Drag a splitter | Resizes the groups on either side. Double-click it to share the space equally. |
+
+When the tabs do not fit, a button at the end of the strip lists every tab of the group.
+
+## Ask before a tab closes
+
+When the user closes a tab, by its close button, a middle click or its menu, in any window, the main window's host raises `PanelClosing`
+(`DockHost.PanelClosingEvent`) first. Set `Cancel` to keep the panel open, such as to ask whether to save a document. To close it after
+all, call `ClosePanel`, which closes without asking:
+
+```csharp
+Workspace.PanelClosing += async (_, e) =>
+{
+    if (!documents.HasUnsavedChanges(e.PanelId))
+        return;
+
+    e.Cancel = true;
+    if (await AskToSaveAsync(e.PanelId))
+        Workspace.ClosePanel(e.PanelId);
+};
+```
+
+Code that closes a panel the way the user does, such as a **Close** command, calls `RequestClosePanel`, which raises the event too.
+
+## Floating windows
+
+Each floating window of the layout opens as a real window with its own `DockHost`, sharing the panels of the main one. Closing a floating
+window returns its panels to the places they had in the main window.
+
+Before a floating window shows, the host raises `WindowOpened` (a routed event, `DockHost.WindowOpenedEvent`), so you can give it your window
+icon and keyboard shortcuts:
+
+```csharp
+Workspace.WindowOpened += (_, e) =>
+{
+    e.Window.Icon = Icon;
+    e.Window.AddHandler(KeyDownEvent, OnShortcutKeyDown, RoutingStrategies.Bubble);
+};
+```
+
+## Save and restore layouts
+
+`DockLayoutSerializer.Serialize(layout)` writes a layout, with its floating windows, as JSON. `Deserialize(json, isKnownPanel)` reads it back
+and drops panels your application no longer has, and the groups they leave empty; `TryDeserialize` returns false for text that is not a
+layout.
+
+```csharp
+File.WriteAllText(path, DockLayoutSerializer.Serialize(Workspace.Layout!));
+
+if (DockLayoutSerializer.TryDeserialize(File.ReadAllText(path), id => panels.GetPanel(id) is not null, out var saved))
+{
+    saved!.Fallback = CreateDefaultLayout();
+    Workspace.Layout = saved;
+}
+```
+
+`DockLayoutPresets` keeps named layouts the user can switch between: `Save(name, layout)`, `TryLoad(name, isKnownPanel, out layout)`,
+`Remove(name)`, `Names` and `Changed`. `ToJson()` and `FromJson(json)` store all presets as one document.
+
+## Related
+
+- The [gallery](/developers/gallery) is a docked workspace: drag its tabs to try every action above.

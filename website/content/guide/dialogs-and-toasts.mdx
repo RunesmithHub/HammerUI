@@ -1,0 +1,122 @@
+---
+title: Dialogs and toasts
+description: Show modal dialogs inside the window, ask to confirm or to save changes, and show notifications that dismiss themselves.
+---
+
+HammerUI shows dialogs and notifications inside the application window rather than as separate operating system windows, so they look like
+the rest of the application in both themes. A `DialogHost` around the window's content shows modal dialogs above it; a `ToastHost` laid over
+the content stacks notifications in its bottom-right corner. Two services wrap them for view models: `IDialogService` and `IToastService`.
+
+## Set up the hosts
+
+Put the content in a `DialogHost` and a `ToastHost` over it, then attach both to a `WindowHost`, as in
+[Getting started](./getting-started.mdx#build-a-first-window):
+
+```csharp
+var host = new WindowHost();
+host.Attach(this, Dialogs, Toasts);
+IDialogService dialogs = new DialogService(host);
+IToastService toasts = new WindowToastService(host);
+```
+
+The services can be created before the window exists. Toasts shown before `Attach` wait and show once the window attaches.
+
+## Ask a question
+
+```csharp
+if (await dialogs.ConfirmAsync("Delete layer?", "The layer and its contents are removed.", "Delete", isDestructive: true))
+    DeleteLayer();
+
+switch (await dialogs.AskToSaveChangesAsync("level-01.json"))
+{
+    case UnsavedChangesChoice.Save:
+        await SaveAsync();
+        break;
+    case UnsavedChangesChoice.Discard:
+        break;
+    case UnsavedChangesChoice.Cancel:
+        return;
+}
+```
+
+| Method | What it does |
+| --- | --- |
+| `ConfirmAsync(title, message, confirmText, isDestructive)` | Shows **Cancel** and a confirm button; returns true when confirmed. `isDestructive` colors the confirm button as dangerous. |
+| `AskToSaveChangesAsync(documentTitle)` | Asks whether to save a document: **Save**, **Don't save** or **Cancel**, as an `UnsavedChangesChoice`. |
+| `ShowMessageAsync(title, message, buttons)` | Shows a message with your own buttons and returns the result of the one chosen. |
+| `ShowAsync(content)` | Shows any control or view model as a dialog and returns its result. |
+| `Close(content, result)` | Closes the dialog showing `content` with a result. |
+
+Buttons for `ShowMessageAsync` are `MessageDialogButton` records:
+
+```csharp
+var result = await dialogs.ShowMessageAsync("Export failed", "The folder is read-only.",
+[
+    new MessageDialogButton("Cancel", null, IsCancel: true),
+    new MessageDialogButton("Choose another folder", "retry", IsDefault: true),
+]);
+```
+
+`IsDefault` makes the button the accent button that <Keys>Enter</Keys> presses, `IsCancel` makes <Keys>Escape</Keys> press it, and
+`IsDestructive` colors it as dangerous.
+
+### Behaviour
+
+- A dialog dims the content behind it and takes focus: the first text box in it, or the dialog itself.
+- <Keys>Escape</Keys> closes the top dialog with a null result, so `ConfirmAsync` returns false and `AskToSaveChangesAsync` returns `Cancel`.
+- Dialogs stack: a dialog can open another, and closing it returns focus to where it was.
+- Dialogs are shown on the UI thread.
+
+## Your own dialogs
+
+`Dialog` is the card a dialog is drawn in: a title (`Header`), an optional `Description`, the body as `Content`, and a `Footer`, typically a
+row of buttons. `ShowCloseButton` shows a close button in the corner.
+
+```xml
+<ui:Dialog xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:ui="https://github.com/runesmithhub/hammerui"
+           x:Class="MyApp.RenameDialog" Header="Rename" Description="Names must be unique in the folder." Width="380">
+  <TextBox x:Name="NameBox" />
+  <ui:Dialog.Footer>
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Button Content="Cancel" IsCancel="True" Click="OnCancel" />
+      <Button Classes="accent" Content="Rename" IsDefault="True" Click="OnRename" />
+    </StackPanel>
+  </ui:Dialog.Footer>
+</ui:Dialog>
+```
+
+```csharp
+private void OnRename(object? sender, RoutedEventArgs e) => Close(NameBox.Text);
+
+private void OnCancel(object? sender, RoutedEventArgs e) => Close(null);
+```
+
+`Dialog.Close(result)` closes the dialog through its host, which completes the `ShowAsync` that opened it:
+
+```csharp
+var name = await dialogs.ShowAsync(new RenameDialog()) as string;
+```
+
+## Toasts
+
+```csharp
+toasts.Show("Saved", "level-01.json", ToastKind.Success);
+toasts.Show("Build failed", "3 errors", ToastKind.Error, TimeSpan.FromSeconds(8));
+toasts.Show("Export finished", null, ToastKind.Success, action: new ToastAction("Open folder", OpenExportFolder));
+```
+
+| Parameter | What it does |
+| --- | --- |
+| `title` | The bold first line. |
+| `message` | Optional text under the title. |
+| `kind` | `Info`, `Success`, `Warning` or `Error`, which picks the icon and color. |
+| `duration` | How long the toast stays; by default `ToastHost.DefaultDuration`, 4 seconds. |
+| `action` | A button under the message, as a `ToastAction` with its text and what it does. Clicking it also dismisses the toast. |
+
+`Show` can be called from any thread. A toast has a close button. `ToastHost.MaxVisible` (4 by default) limits how many show at once; a
+new toast beyond it dismisses the oldest.
+
+## Related
+
+- [Feedback and empty states](./controls/feedback.mdx) for badges, status icons and placeholders.

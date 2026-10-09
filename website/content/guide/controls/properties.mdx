@@ -1,0 +1,73 @@
+---
+title: Properties
+description: Build an inspector from collapsible property groups and labelled rows that share one resizable label column.
+---
+
+An inspector shows an object's settings as rows: a label on the left, an editor on the right. HammerUI builds it from two controls.
+`PropertyGroup` is a collapsible section with an icon, header actions and a menu. `PropertyRow` is one labelled row. The labels of every
+row in the panel share one column, which the user resizes by dragging its edge.
+
+## Example
+
+```xml
+<ScrollViewer>
+  <StackPanel ui:PropertyGrid.LabelWidth="110">
+    <ui:PropertyGroup Header="Window" Icon="{x:Static ui:Icons.Monitor}">
+      <StackPanel>
+        <ui:PropertyRow Label="Title" Description="Shown in the title bar and the task switcher">
+          <TextBox Text="{Binding Title}" />
+        </ui:PropertyRow>
+        <ui:PropertyRow Label="Size">
+          <ui:Vector2Field Value="{Binding Size}" />
+        </ui:PropertyRow>
+        <ui:PropertyRow Label="Opacity" IsModified="{Binding IsOpacityModified}" ResetCommand="{Binding ResetOpacityCommand}">
+          <ui:NumberField Value="{Binding Opacity}" Minimum="0" Maximum="1" Step="0.05" FormatString="0.00" />
+        </ui:PropertyRow>
+        <ui:PropertyRow Label="Resizable">
+          <CheckBox IsChecked="{Binding IsResizable}" />
+        </ui:PropertyRow>
+      </StackPanel>
+    </ui:PropertyGroup>
+  </StackPanel>
+</ScrollViewer>
+```
+
+## PropertyGroup
+
+A `HeaderedContentControl`: the `Header` is the section title and the `Content` its rows.
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Header` | | The title. |
+| `Icon`, `IconForeground` | | An icon before the title, and its color. |
+| `IsExpanded` | true | Whether the rows show. Clicking the header toggles it. Bound two-way. |
+| `HeaderActions` | | Content at the right of the header, such as an enable toggle or small icon buttons. |
+| `Menu` | | A flyout of section commands, such as **Reset**, **Copy** or **Remove**. It opens from the header's more button and on right-click of the header. |
+
+## PropertyRow
+
+| Property | What it does |
+| --- | --- |
+| `Label` | The text in the label column. |
+| `Description` | The label's tooltip, typically what the property does. |
+| `Content` | The editor. |
+| `Accessory` | A small control at the end of the label, such as a chip saying the value follows another. |
+| `IsModified` | Marks a value that differs from its default: the row shows an accent marker and a reset button. |
+| `ResetCommand` | Runs when the reset button is clicked. The row also raises `ResetRequested`. |
+| `LabelWidth` | The label column's width, inherited from `PropertyGrid.LabelWidth`. |
+
+### The label column
+
+`PropertyGrid.LabelWidth` is an attached, inherited property: set it on the panel that holds the groups, and every row below takes it. The
+default is 120.
+
+Dragging the edge of a label sets the width for every row that shares it: rows under the element where `PropertyGrid.LabelWidth` is set,
+or else every row under the outermost group's parent. The width cannot go below 48.
+
+In a row too narrow for its label and its value, the label column gives up width first, so the editor keeps enough room for a field of two
+numbers. `LabelColumnWidth` is the width the label takes in that row.
+
+## Related
+
+- [Inputs and fields](./fields.mdx), [Colors](./colors.mdx) and [Curves and gradients](./curves-and-gradients.mdx) for the editors in rows.
+- [Layout helpers](./layout.mdx) for `SectionPanel` and `SettingRow`, the equivalents for settings pages.

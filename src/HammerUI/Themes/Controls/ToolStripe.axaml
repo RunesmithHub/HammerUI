@@ -1,0 +1,119 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="https://github.com/runesmithhub/hammerui">
+
+  <ControlTheme x:Key="{x:Type ui:ToolStripe}" TargetType="ui:ToolStripe">
+    <Setter Property="Background" Value="{DynamicResource Surface0Brush}" />
+    <Setter Property="Width" Value="{DynamicResource StripeWidth}" />
+    <Setter Property="Padding" Value="0,4" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                Padding="{TemplateBinding Padding}">
+          <Panel>
+            <Grid RowDefinitions="Auto,*,Auto">
+              <ItemsControl Name="PART_Top" ItemsSource="{TemplateBinding TopItems}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Spacing="4" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="ui:ToolStripeItem">
+                    <ui:ToolStripeButton Item="{Binding}" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <ItemsControl Name="PART_Bottom" Grid.Row="2" ItemsSource="{TemplateBinding BottomItems}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Spacing="4" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="ui:ToolStripeItem">
+                    <ui:ToolStripeButton Item="{Binding}" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Grid>
+            <Canvas IsHitTestVisible="False">
+              <Border Name="PART_Indicator"
+                      Canvas.Left="6"
+                      Width="28"
+                      Height="2"
+                      CornerRadius="1"
+                      Background="{DynamicResource AccentBrush}"
+                      IsVisible="False" />
+            </Canvas>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type ui:ToolStripeButton}" TargetType="ui:ToolStripeButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusMedium}" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="ClipToBounds" Value="False" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border Name="PART_Background" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+            <Border.Transitions>
+              <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.08" />
+              </Transitions>
+            </Border.Transitions>
+          </Border>
+          <ui:SymbolIcon Data="{TemplateBinding Icon}" Size="16" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <Border Name="PART_Badge"
+                  MinWidth="14"
+                  Height="14"
+                  Padding="3,0"
+                  Margin="0,-2,-3,0"
+                  CornerRadius="7"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Top"
+                  Background="{DynamicResource TextMutedBrush}"
+                  BorderBrush="{DynamicResource Surface0Brush}"
+                  BorderThickness="1"
+                  IsVisible="False">
+            <TextBlock Text="{TemplateBinding Badge}"
+                       FontSize="9"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Surface0Brush}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+          </Border>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SurfaceHoverBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="Background" Value="{DynamicResource SurfacePressedBrush}" />
+    </Style>
+    <Style Selector="^:active">
+      <Setter Property="Background" Value="{DynamicResource SurfacePressedBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:badged /template/ Border#PART_Badge">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <Style Selector="^:dragging">
+      <Setter Property="Opacity" Value="0.4" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

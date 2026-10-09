@@ -1,0 +1,44 @@
+---
+title: Project layout
+description: Where HammerUI's code lives, from the library's folders to the gallery, the tests and the documentation site.
+---
+
+The repository holds one library. Its folders follow the parts described in the [guide](/guide), so a change to docking stays in
+`Docking/` and a new control goes in `Controls/` with its theme in `Themes/Controls/`.
+
+## The repository
+
+| Path | What it holds |
+| --- | --- |
+| `src/HammerUI` | The library, the only packed project. |
+| `samples/HammerUI.Gallery` | The [gallery](./gallery.mdx). |
+| `tests/HammerUI.Tests` | The test project, empty for now. |
+| `website` | This documentation site. |
+| `.github` | Workflows, issue and pull request templates, and the test summary script. |
+| `Directory.Build.props`, `Directory.Packages.props` | Settings and package versions shared by every project. |
+| `BannedSymbols.txt` | Calls the analyzers reject, each with the reason and what to use instead. |
+
+## The library
+
+| Folder | What it holds | Namespace |
+| --- | --- | --- |
+| `Theming` | `ToolkitTheme`, palettes, `ThemeManager` and the resource keys. | `HammerUI.Theming` |
+| `Themes/Controls` | A control theme per control, by area: buttons, fields, editor controls, docking, overlays and more. | |
+| `Themes/Styles` | Class styles for plain controls: typography, surfaces, the shell and lists. | |
+| `Themes/Metrics.axaml` | Corner radii, font sizes, the control height and the fonts. | |
+| `Controls` | Every control, with the logic behind them, such as number expressions and curve editing. | `HammerUI.Controls` |
+| `Docking` | The dock layout model, its serializer and presets, and `DockHost` with its views and windows. | `HammerUI.Docking` |
+| `Services` | `WindowHost`, the dialog, toast and file dialog services. | `HammerUI.Services` |
+| `Values` | `Color`, `Curve` and `Gradient`, plain values with no dependency on Avalonia. | `HammerUI.Values` |
+| `Icons.cs`, `Icons.Extended.cs`, `Icons.Lookup.cs` | The icons, and finding, registering and aliasing them by name. | `HammerUI` |
+
+The XAML namespace `https://github.com/runesmithhub/hammerui` maps to `HammerUI`, `HammerUI.Controls` and `HammerUI.Theming`. Docking is
+used with `xmlns:dock="using:HammerUI.Docking"`.
+
+## Where a change goes
+
+- **A new control:** the class in `Controls/`, its `ControlTheme` in the matching file of `Themes/Controls/`, a section in the gallery and
+  a section on the matching [controls page](/guide/controls).
+- **A new theme color or size:** the property on `ThemePalette` or the value in `Metrics.axaml`, the constant in `ThemeKeys`, and the table in
+  [Theming](/guide/theming).
+- **A new icon:** a property in `Icons.cs` or `Icons.Extended.cs` with Lucide path data; its name comes from the property.

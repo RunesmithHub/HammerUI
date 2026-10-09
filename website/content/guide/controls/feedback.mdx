@@ -1,0 +1,81 @@
+---
+title: Feedback and empty states
+description: Placeholders for empty panels, live sparkline charts, status icons and drop indicators for drag and drop.
+---
+
+These controls tell the user what is going on: that a panel is empty and how to fill it, how a value has moved over time, whether work
+succeeded, and where a dragged item will land. For notifications and questions, see [Dialogs and toasts](../dialogs-and-toasts.mdx).
+
+## EmptyState
+
+A centered placeholder for a panel or list with nothing to show: an icon, a title, a hint and an optional action button.
+
+```xml
+<ui:EmptyState Icon="{x:Static ui:Icons.FolderOpen}" Title="No folder open"
+               Hint="Open a folder to browse its files." ActionText="Open folder" ActionCommand="{Binding OpenFolderCommand}" />
+```
+
+| Property | What it does |
+| --- | --- |
+| `Icon` | The large icon. |
+| `Title` | What is missing. |
+| `Hint` | What to do to fill the panel. |
+| `ActionText` | The action button's label; the button hides when it is null. |
+| `ActionCommand`, `ActionCommandParameter` | The command the button runs. |
+
+Show an empty state in place of the list, rather than over it, so it is the only thing in the panel.
+
+## Sparkline
+
+A small filled line chart of recent samples, such as frame times or memory, with an optional threshold marker.
+
+```csharp
+var frameTimes = new ValueHistory(120);
+var chart = new Sparkline { History = frameTimes, Threshold = 16.7, Height = 32 };
+
+frameTimes.Push(elapsed.TotalMilliseconds);
+```
+
+| Property | What it does |
+| --- | --- |
+| `History` | The samples, a `ValueHistory`. The chart redraws when a sample is pushed. |
+| `Stroke`, `Fill` | The line and the area under it. |
+| `Maximum` | The value at the top edge; zero scales to the data. |
+| `Threshold`, `ThresholdBrush` | A dashed line at a value, such as a frame budget; zero hides it. |
+
+`ValueHistory(capacity)` keeps the newest samples, from oldest to newest: `Push(value)`, `Clear()`, `Count`, `Capacity`, an indexer
+where 0 is the oldest, `Latest`, `Min`, `Max`, `Average` and a `Changed` event.
+
+## Status icons
+
+In a status bar, `SymbolIcon.status` is a small icon in the muted color; add a class for its tone. `spin`, or `IsSpinning`, turns an icon while work runs:
+
+```xml
+<ui:SymbolIcon Classes="status success" Data="{x:Static ui:Icons.CheckCircle}" />
+<ui:SymbolIcon Classes="status warning" Data="{x:Static ui:Icons.AlertTriangle}" />
+<ui:SymbolIcon Classes="status error" Data="{x:Static ui:Icons.AlertCircle}" />
+<ui:SymbolIcon Classes="status busy spin" Data="{x:Static ui:Icons.Refresh}" />
+```
+
+[Badges](./buttons.mdx#badge) carry the same tones as text.
+
+## Drop indicators
+
+`DropIndicator` shows where a drag and drop will insert in a list, tree or grid: a line before or after the item under the pointer, or an
+outline around it when the item can take the drop inside, such as a folder.
+
+```csharp
+private void OnDragOver(object? sender, DragEventArgs e)
+{
+    var position = DropIndicator.PositionAt(item, e.GetPosition(item), canDropInside: node.IsFolder);
+    DropIndicator.Show(item, position, indent: depth * 14);
+}
+
+private void OnDragLeave(object? sender, DragEventArgs e) => DropIndicator.Hide(item);
+```
+
+| Member | What it does |
+| --- | --- |
+| `PositionAt(target, point, canDropInside, orientation)` | The `DropPosition` for a pointer over an item: `Before`, `Inside` or `After`. With inside drops, the edges insert and the middle drops inside. |
+| `Show(target, position, indent, orientation)` | Shows the indicator on an item. `indent` starts the line further in, such as at a tree item's depth. Use `Horizontal` for items in a row. |
+| `Hide(target)` | Removes it, on drop and when the drag leaves. |

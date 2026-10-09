@@ -1,0 +1,115 @@
+# Packs the library when a version tag such as v0.2.0 is pushed, pushes the package to the Runesmith hub feed and creates a GitHub release
+# with it. Pull requests that change this workflow, and runs on demand, pack without publishing.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  pack:
+    name: Pack
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET from global.json
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          global-json-file: global.json
+
+      # MSBuild reads HammerUIVersion from the environment.
+      - name: Take the version from the tag
+        run: |
+          case "$GITHUB_REF" in
+            refs/tags/v*) version="${GITHUB_REF_NAME#v}" ;;
+            *) version="$(dotnet msbuild src/HammerUI -getProperty:HammerUIVersion)-ci.$GITHUB_RUN_NUMBER" ;;
+          esac
+          echo "HammerUIVersion=$version" >> "$GITHUB_ENV"
+
+      - name: Pack
+        run: dotnet pack src/HammerUI --configuration Release --output artifacts/packages -warnaserror
+
+      - name: Upload the package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: package
+          path: artifacts/packages
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    name: Publish the package and the release
+    needs: pack
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: hub-feed
+    permissions:
+      contents: write
+    steps:
+      - name: Download the package
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: package
+          path: packages
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install Sleet
+        run: dotnet tool install sleet --version 7.2.0 --tool-path "$RUNNER_TEMP/tools"
+
+      # Holds the bucket keys, so it lives outside the workspace and is removed after the push.
+      - name: Write the Sleet configuration
+        env:
+          HUB_FEED_ACCOUNT_ID: ${{ vars.HUB_FEED_ACCOUNT_ID }}
+          HUB_FEED_BUCKET: ${{ vars.HUB_FEED_BUCKET }}
+          HUB_FEED_ACCESS_KEY_ID: ${{ secrets.HUB_FEED_ACCESS_KEY_ID }}
+          HUB_FEED_SECRET_ACCESS_KEY: ${{ secrets.HUB_FEED_SECRET_ACCESS_KEY }}
+        run: |
+          umask 077
+          jq -n \
+            --arg serviceURL "https://$HUB_FEED_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            --arg bucketName "$HUB_FEED_BUCKET" \
+            --arg accessKeyId "$HUB_FEED_ACCESS_KEY_ID" \
+            --arg secretAccessKey "$HUB_FEED_SECRET_ACCESS_KEY" \
+            '{sources: [{name: "hub-feed", type: "s3", serviceURL: $serviceURL, bucketName: $bucketName, disablePayloadSigning: true,
+              path: "https://nuget.runesmith.dev/", baseURI: "https://nuget.runesmith.dev/", accessKeyId: $accessKeyId, secretAccessKey: $secretAccessKey}]}' \
+            > "$RUNNER_TEMP/sleet.json"
+
+      # Without --force, a version already on the feed fails the push, so published packages never change.
+      - name: Push to the hub feed
+        run: |
+          "$RUNNER_TEMP/tools/sleet" push packages --config "$RUNNER_TEMP/sleet.json" --source hub-feed
+
+      - name: Remove the Sleet configuration
+        if: ${{ always() }}
+        run: rm -f "$RUNNER_TEMP/sleet.json"
+
+      # A tag with a pre-release part, such as v0.3.0-rc.1, makes a pre-release.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          prerelease=()
+          if [[ "$version" == *-* ]]; then prerelease=(--prerelease); fi
+          gh release create "$GITHUB_REF_NAME" packages/* --repo "$GITHUB_REPOSITORY" --verify-tag --title "HammerUI $version" --generate-notes "${prerelease[@]}"

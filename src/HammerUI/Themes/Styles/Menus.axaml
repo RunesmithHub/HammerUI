@@ -1,0 +1,57 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Style Selector="Menu">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Height" Value="{DynamicResource MenuBarHeight}" />
+  </Style>
+  <Style Selector="Menu > MenuItem">
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusSmall}" />
+    <Setter Property="Padding" Value="{DynamicResource MenuBarItemPadding}" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Menu > MenuItem:pointerover, Menu > MenuItem:open">
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="Menu > MenuItem:selected /template/ Border#PART_LayoutRoot">
+    <Setter Property="Background" Value="{DynamicResource SurfaceHoverBrush}" />
+  </Style>
+
+  <Style Selector="MenuFlyoutPresenter, ContextMenu">
+    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="{DynamicResource MenuFlyoutPresenterThemePadding}" />
+    <Setter Property="MinWidth" Value="200" />
+  </Style>
+
+  <!-- Popups fade in; 120 ms is short enough to never delay the next action -->
+  <Style Selector="MenuFlyoutPresenter, ContextMenu, FlyoutPresenter, MenuItem /template/ Border#PopupBorder, ComboBox /template/ Border#PopupBorder">
+    <Style.Animations>
+      <Animation Duration="0:0:0.12" Easing="CubicEaseOut" FillMode="Forward">
+        <KeyFrame Cue="0%">
+          <Setter Property="Opacity" Value="0" />
+        </KeyFrame>
+        <KeyFrame Cue="100%">
+          <Setter Property="Opacity" Value="1" />
+        </KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+
+  <Style Selector="MenuItem">
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusSmall}" />
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+  </Style>
+  <Style Selector="MenuItem /template/ TextBlock#PART_InputGestureText">
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+  </Style>
+  <Style Selector="MenuItem /template/ Path#ChevronPath">
+    <Setter Property="Height" Value="8" />
+    <Setter Property="Margin" Value="12,0,2,0" />
+  </Style>
+  <Style Selector="MenuItem:disabled">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+</Styles>

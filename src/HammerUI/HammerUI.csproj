@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>A modern, themeable and extensible UI library for Avalonia: light and dark palettes with runtime accent colors, icons, docking with floating windows, dialogs, toasts and editor-grade controls.</Description>
+    <IsPackable>true</IsPackable>
+    <PackageTags>avalonia;ui;controls;theme;docking;dark-mode</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="HammerUI.Tests" />
+  </ItemGroup>
+</Project>

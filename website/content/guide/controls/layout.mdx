@@ -1,0 +1,123 @@
+---
+title: Layout helpers
+description: Titled sections for side panels, setting rows for settings pages, a toolbar of two parts that wraps when narrow, and the icon stripes that show panels.
+---
+
+Four controls arrange content that is not a property list: `SectionPanel` groups content under a title in a side panel, `SettingRow` lays
+out one setting on a settings page, `SplitBar` keeps a panel's toolbar on one row while it fits, and `ToolStripe` holds the buttons that show
+panels at the window's edges.
+
+## SectionPanel
+
+A titled section that can collapse. Use it to group content in side panels; for an object's properties, use a
+[PropertyGroup](./properties.mdx#propertygroup) instead.
+
+```xml
+<ui:SectionPanel Header="Layers" Icon="{x:Static ui:Icons.Layers}" IsCollapsible="True">
+  <ui:SectionPanel.HeaderActions>
+    <Button Classes="icon small" ToolTip.Tip="Add layer">
+      <ui:SymbolIcon Data="{x:Static ui:Icons.Plus}" Size="14" />
+    </Button>
+  </ui:SectionPanel.HeaderActions>
+  <ListBox ItemsSource="{Binding Layers}" />
+</ui:SectionPanel>
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Header` | | The title. |
+| `Icon` | | An icon before the title. |
+| `HeaderActions` | | Content at the right of the header row, typically small icon buttons. |
+| `IsCollapsible` | false | Whether clicking the header shows and hides the content. |
+| `IsExpanded` | true | Whether the content shows. Bound two-way. |
+
+## SettingRow
+
+One setting on a settings page: an icon, a title and a description on the left, the control that changes it on the right. Put rows in a
+`Border.card`.
+
+```xml
+<Border Classes="card">
+  <StackPanel Spacing="4">
+    <ui:SettingRow Icon="{x:Static ui:Icons.Sun}" Title="Theme" Description="Follow the system, or always use light or dark.">
+      <ComboBox SelectedIndex="0">
+        <ComboBoxItem Content="System" />
+        <ComboBoxItem Content="Light" />
+        <ComboBoxItem Content="Dark" />
+      </ComboBox>
+    </ui:SettingRow>
+    <ui:SettingRow Icon="{x:Static ui:Icons.Save}" Title="Save automatically" Description="Save open files when the window loses focus.">
+      <ToggleSwitch IsChecked="{Binding AutoSave}" />
+    </ui:SettingRow>
+  </StackPanel>
+</Border>
+```
+
+| Property | What it does |
+| --- | --- |
+| `Icon` | The leading icon. |
+| `Title` | The setting's name. |
+| `Description` | What it does, under the title. |
+| `Content` | The control that changes it. |
+
+## SplitBar
+
+A toolbar of two parts, such as a panel's filters and its search box. While both fit, they share one row, the second at the right. When
+the bar is too narrow, each part gets a row of its own, as wide as the bar.
+
+```xml
+<ui:SplitBar Margin="8">
+  <WrapPanel ItemSpacing="4">
+    <ToggleButton Classes="chip" IsChecked="True" Content="Errors" />
+    <ToggleButton Classes="chip" IsChecked="True" Content="Warnings" />
+    <ToggleButton Classes="chip" Content="Messages" />
+  </WrapPanel>
+  <ui:SearchBox PlaceholderText="Filter" MinWidth="160" />
+</ui:SplitBar>
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Spacing` | 8 | The gap between the parts on one row. |
+| `RowSpacing` | 6 | The gap between the rows when the parts are on two. |
+| `FirstGrows` | false | Which part takes the rest of the row. |
+
+On one row, one part keeps its own width and the other takes the rest: the second by default, so a search box with a `MinWidth` grows into
+the space. With `FirstGrows`, the first part grows and needs only its `MinWidth` to share the row. A part that is a `WrapPanel` wraps when
+its row is narrower than it.
+
+## ToolStripe
+
+A narrow column of icon buttons at an edge of the window, one per panel, in an upper and a lower group. The application owns the items:
+it shows a panel when its button is clicked and moves the item when the user drags it, so the stripe works with any layout.
+
+```xml
+<ui:ToolStripe x:Name="LeftStripe" />
+```
+
+```csharp
+var explorer = new ToolStripeItem("explorer", "Explorer", Icons.FolderOpen) { IsActive = true };
+var problems = new ToolStripeItem("problems", "Problems", Icons.AlertTriangle) { Badge = "3" };
+LeftStripe.TopItems = new ObservableCollection<ToolStripeItem> { explorer };
+LeftStripe.BottomItems = new ObservableCollection<ToolStripeItem> { problems };
+LeftStripe.ItemInvoked += (_, e) => e.Item.IsActive = !e.Item.IsActive;
+LeftStripe.ItemMoved += (_, e) => MoveItem(e.Item, e.Target, e.Group, e.Index);
+LeftStripe.ItemMenu = item => [new MenuItem { Header = "Hide" }];
+```
+
+| Member | What it does |
+| --- | --- |
+| `TopItems`, `BottomItems` | The items of the upper and lower group, usually observable collections. |
+| `ItemInvoked` | Raised when a button is clicked, with the item and the modifier keys. |
+| `ItemMoved` | Raised on the stripe a button was dragged from, with the stripe and group it was dropped on and its place there, counted without the item. |
+| `ItemMenu` | Creates the entries of a button's context menu each time it opens; no entries means no menu. |
+
+| `ToolStripeItem` member | What it does |
+| --- | --- |
+| `Id`, `Title`, `Icon` | The panel's id, the tooltip and the 16 px icon. |
+| `ToolTip` | A tooltip other than the title, such as one with the key that shows the panel. |
+| `Badge` | Short text over the button's corner, such as a count, or null. |
+| `IsActive` | Whether the panel shows; the button draws as pressed. |
+
+Drag a button to move it. While you drag, a line shows where it lands, on this stripe or on another stripe of the same window. Escape cancels
+the drag. The stripe is 40 px wide (`StripeWidth`) and uses the window surface.

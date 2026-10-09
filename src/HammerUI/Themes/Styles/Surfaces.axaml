@@ -1,0 +1,62 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The three surface levels: the window (0), panels and editors (1), popups, menus and dialogs (2) -->
+  <Style Selector="Border.surface0">
+    <Setter Property="Background" Value="{DynamicResource Surface0Brush}" />
+  </Style>
+  <Style Selector="Border.surface1">
+    <Setter Property="Background" Value="{DynamicResource Surface1Brush}" />
+  </Style>
+  <Style Selector="Border.surface2, Border.popup">
+    <Setter Property="Background" Value="{DynamicResource Surface2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusLarge}" />
+    <Setter Property="BoxShadow" Value="{DynamicResource ShadowPopup}" />
+  </Style>
+
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusLarge}" />
+    <Setter Property="Padding" Value="16" />
+    <Setter Property="BoxShadow" Value="{DynamicResource ShadowRaised}" />
+  </Style>
+
+  <Style Selector="Border.panel">
+    <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+  </Style>
+
+  <Style Selector="Border.toolbar">
+    <Setter Property="Background" Value="{DynamicResource Surface0Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="MinHeight" Value="{DynamicResource ToolbarHeight}" />
+  </Style>
+
+  <Style Selector="Border.statusbar">
+    <Setter Property="Background" Value="{DynamicResource Surface0Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="TextElement.FontSize" Value="{DynamicResource FontSizeCaption}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+
+  <Style Selector="Border.divider-v">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Margin" Value="8,8" />
+    <Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}" />
+  </Style>
+
+  <Style Selector="Border.divider-h">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="Margin" Value="0,8" />
+    <Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}" />
+  </Style>
+</Styles>

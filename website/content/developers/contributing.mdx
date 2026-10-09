@@ -1,0 +1,61 @@
+---
+title: Contributing
+description: How to propose a change to HammerUI, the conventions for code and documentation, and how to write commit messages.
+---
+
+HammerUI welcomes fixes, new controls and better documentation. This page is the long form of `CONTRIBUTING.md` in the repository root.
+
+## Before you start
+
+- For a bug, open an issue with the steps to reproduce it. For a security problem, follow `SECURITY.md` instead, so it is reported
+  privately.
+- For a larger change, such as a new control, open an issue first, so the approach is agreed on before you write the code.
+
+## Make a change
+
+<Steps>
+
+1. Fork the repository and create a branch from `main`.
+2. [Build and test](./building.mdx) with the same commands CI runs.
+3. Format the code with `dotnet format whitespace` and `dotnet format style`.
+4. Update the documentation in `website/` in the same commit when a control, a theme resource or an API changes, and show new controls in the
+   [gallery](./gallery.mdx).
+5. Write each commit message as a Conventional Commit.
+6. Open a pull request against `main` and fill in the template.
+
+</Steps>
+
+## Code
+
+- The library builds without warnings. CI builds with `-warnaserror`.
+- Public types and members have XML documentation that says what they do for the caller.
+- Comments explain only what the code cannot say: a constraint, an invariant or a workaround, in one line where possible.
+- Controls take their colors, sizes and corner radii from theme resources with `DynamicResource`, so they follow both palettes and the
+  accent color.
+
+## Documentation
+
+Every feature has a page or a section in the guide, with what it is, an example, its properties and how it behaves. `website/STYLE.md`
+describes the voice and the page structure, and `npm run lint:prose` checks the rules a script can check.
+
+## Commit messages
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), and the Checks workflow checks every commit of a pull
+request:
+
+```text
+fix(docking): keep the tab order when a window closes
+feat(controls): add a range slider
+docs: describe the dialog service
+```
+
+| Part | Values |
+| --- | --- |
+| Type | `feat`, `fix`, `perf`, `refactor`, `test`, `docs`, `ci`, `chore` or `revert`. |
+| Scope | Optional; the part of the library, such as `docking`, `theme`, `icons` or `controls`. |
+| Description | What the change does, in the imperative. |
+
+## License
+
+HammerUI is licensed under the Apache License 2.0. Contributions you submit are licensed under the same terms, as section 5 of the license
+describes.

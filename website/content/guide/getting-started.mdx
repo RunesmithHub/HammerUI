@@ -1,0 +1,154 @@
+---
+title: Getting started
+description: Add HammerUI to an Avalonia application, apply its theme and build a first window with dialogs and toasts.
+---
+
+This page adds HammerUI to an Avalonia application, applies the theme and builds a window with an app bar, content and a status bar, with
+dialogs and toasts wired up. You need the .NET 10 SDK and an Avalonia 12 desktop application.
+
+## Add the package
+
+<Steps>
+
+1. HammerUI is published to the Runesmith hub feed, a public NuGet feed that needs no account or token. Add it as a source once:
+
+   ```bash
+   dotnet nuget add source https://nuget.runesmith.dev/index.json --name runesmith-hub
+   ```
+
+   With package source mapping, NuGet restores HammerUI and the Runesmith packages only from the hub feed and everything else from
+   nuget.org. A `nuget.config` next to your solution sets this up:
+
+   ```xml title="nuget.config"
+   <?xml version="1.0" encoding="utf-8"?>
+   <configuration>
+     <packageSources>
+       <clear />
+       <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+       <add key="runesmith-hub" value="https://nuget.runesmith.dev/index.json" />
+     </packageSources>
+     <packageSourceMapping>
+       <packageSource key="nuget.org">
+         <package pattern="*" />
+       </packageSource>
+       <packageSource key="runesmith-hub">
+         <package pattern="HammerUI" />
+         <package pattern="Runesmith.*" />
+         <package pattern="RunesmithHub.*" />
+       </packageSource>
+     </packageSourceMapping>
+   </configuration>
+   ```
+
+2. Reference the package from your application:
+
+   ```xml
+   <PackageReference Include="HammerUI" Version="0.1.0" />
+   ```
+
+3. Add the theme to your application's styles, in `App.axaml`:
+
+   ```xml title="App.axaml"
+   <Application xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:ui="https://github.com/runesmithhub/hammerui"
+                x:Class="MyApp.App"
+                RequestedThemeVariant="Dark">
+     <Application.Styles>
+       <ui:ToolkitTheme />
+     </Application.Styles>
+   </Application>
+   ```
+
+</Steps>
+
+`ToolkitTheme` includes Avalonia's Fluent theme, so you do not add `FluentTheme` yourself. `RequestedThemeVariant` picks the starting
+variant: `Dark`, `Light` or `Default` to follow the system. Every HammerUI control and resource is in the
+`https://github.com/runesmithhub/hammerui` XAML namespace.
+
+Call `WithInterFont()` on the `AppBuilder` in `Program.cs` so the Inter font the theme uses is available:
+
+```csharp title="Program.cs"
+using Avalonia;
+using MyApp;
+
+return AppBuilder.Configure<App>().UsePlatformDetect().WithInterFont().LogToTrace().StartWithClassicDesktopLifetime(args);
+```
+
+## Build a first window
+
+A HammerUI window puts its content inside a `DialogHost`, so dialogs can cover it, and lays a `ToastHost` over it for notifications:
+
+```xml title="MainWindow.axaml"
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="https://github.com/runesmithhub/hammerui"
+        x:Class="MyApp.MainWindow"
+        Title="My app" Width="1200" Height="800">
+  <ui:DialogHost x:Name="Dialogs">
+    <Panel>
+      <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource BackgroundBrush}">
+        <Border Grid.Row="0" Classes="toolbar appbar" Height="44" Padding="8,0">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <ui:SymbolIcon Data="{x:Static ui:Icons.Hammer}" />
+            <TextBlock Text="My app" FontWeight="SemiBold" VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <ui:EmptyState Grid.Row="1" Icon="{x:Static ui:Icons.FolderOpen}" Title="Nothing open" Hint="Open a file to start." />
+
+        <Border Grid.Row="2" Classes="statusbar" Padding="12,0">
+          <TextBlock Classes="status" Text="Ready" />
+        </Border>
+      </Grid>
+      <ui:ToastHost x:Name="Toasts" />
+    </Panel>
+  </ui:DialogHost>
+</Window>
+```
+
+In the code-behind, attach the hosts to a `WindowHost` and create the services from it:
+
+```csharp title="MainWindow.axaml.cs"
+using Avalonia.Controls;
+using HammerUI.Controls;
+using HammerUI.Services;
+
+namespace MyApp;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+        var host = new WindowHost();
+        host.Attach(this, Dialogs, Toasts);
+        ToastService = new WindowToastService(host);
+        DialogService = new DialogService(host);
+    }
+
+    public IToastService ToastService { get; }
+
+    public IDialogService DialogService { get; }
+}
+```
+
+`WindowHost` connects the window-bound services to the window once it exists, so services created earlier, such as in a dependency
+injection container, work as soon as the window attaches. [Dialogs and toasts](./dialogs-and-toasts.mdx) describes the services.
+
+## Switch the theme at runtime
+
+Create one `ThemeManager` for the application and keep it:
+
+```csharp
+var theme = new ThemeManager(Application.Current!);
+theme.Mode = ThemeMode.Light;
+theme.Accent = Avalonia.Media.Color.Parse("#E5534B");
+```
+
+[Theming](./theming.mdx) covers modes, accents, palettes and the resource keys your own controls use.
+
+## Related
+
+- [Shell styles](./shell-styles.mdx) for the app bar and status bar classes used above.
+- [Docking](./docking.mdx) to turn the content area into a workspace of panels.

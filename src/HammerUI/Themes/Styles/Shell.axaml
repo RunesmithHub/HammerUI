@@ -1,0 +1,209 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="https://github.com/runesmithhub/hammerui">
+
+  <!-- The application's top bar: logo, menus, title and global actions -->
+  <Style Selector="Border.appbar">
+    <Setter Property="Background" Value="{DynamicResource Surface0Brush}" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.18" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.appbar Button, Border.appbar ToggleButton, Border.toolstrip Button, Border.toolstrip ToggleButton">
+    <Setter Property="Focusable" Value="False" />
+  </Style>
+
+  <!-- Buttons of an app bar: quiet until hovered, one control height -->
+  <Style Selector="Button.toolbar">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusMedium}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.toolbar /template/ Border#PART_Root">
+    <Setter Property="BoxShadow" Value="none" />
+  </Style>
+  <Style Selector="Button.toolbar:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="Button.toolbar.icon">
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+
+  <!-- Minimize, maximize and close, for windows that draw their own title bar -->
+  <Style Selector="Button.window-control">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    <Setter Property="Width" Value="44" />
+    <Setter Property="Height" Value="{DynamicResource ToolbarHeight}" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="Focusable" Value="False" />
+  </Style>
+  <Style Selector="Button.window-control /template/ Border#PART_Root">
+    <Setter Property="BoxShadow" Value="none" />
+  </Style>
+  <Style Selector="Button.window-control:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="Button.window-control.close:pointerover">
+    <Setter Property="Background" Value="{DynamicResource DangerBrush}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.window-control.close:pointerover /template/ Border#PART_StateLayer">
+    <Setter Property="IsVisible" Value="False" />
+  </Style>
+
+  <!-- A row of options under the app bar, such as the active tool's settings -->
+  <Style Selector="Border.toolstrip">
+    <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Padding" Value="10,0" />
+  </Style>
+  <Style Selector="Border.toolstrip TextBlock.label">
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.toolstrip ComboBox">
+    <Setter Property="MinHeight" Value="26" />
+    <Setter Property="Height" Value="26" />
+    <Setter Property="Padding" Value="8,0,4,0" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ToggleButton.option">
+    <Setter Property="MinHeight" Value="26" />
+    <Setter Property="Height" Value="26" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ToggleButton.option ui|SymbolIcon">
+    <Setter Property="Size" Value="14" />
+  </Style>
+
+  <!-- Small toggles beside a panel's tabs -->
+  <Style Selector="ToggleButton.header">
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+  <Style Selector="ToggleButton.header:checked">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Surfaces floating over content, such as a tool rail or zoom controls -->
+  <Style Selector="Border.floating">
+    <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusLarge}" />
+    <Setter Property="BoxShadow" Value="{DynamicResource ShadowRaised}" />
+    <Setter Property="Padding" Value="4" />
+  </Style>
+  <Style Selector="Border.floating Button, Border.floating ToggleButton">
+    <Setter Property="Focusable" Value="False" />
+  </Style>
+
+  <!-- A path as clickable parts, such as under an editor's tabs -->
+  <Style Selector="Border.breadcrumbs">
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="Background" Value="{DynamicResource Surface1Brush}" />
+  </Style>
+  <Style Selector="Button.crumb">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="4,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusSmall}" />
+  </Style>
+  <Style Selector="Button.crumb /template/ Border#PART_Root">
+    <Setter Property="BoxShadow" Value="none" />
+  </Style>
+  <Style Selector="Button.crumb.current">
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Button.crumb:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="ui|SymbolIcon.crumb-separator">
+    <Setter Property="Foreground" Value="{DynamicResource TextDisabledBrush}" />
+    <Setter Property="Margin" Value="2,0" />
+  </Style>
+
+  <!-- Status bar text and icons -->
+  <Style Selector="TextBlock.status">
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ui|SymbolIcon.status">
+    <Setter Property="Size" Value="12" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ui|SymbolIcon.status.success">
+    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+  </Style>
+  <Style Selector="ui|SymbolIcon.status.warning">
+    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+  </Style>
+  <Style Selector="ui|SymbolIcon.status.error">
+    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+  </Style>
+  <Style Selector="ui|SymbolIcon.status.busy">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Status bar items, clickable when they have a command -->
+  <Style Selector="Button.status-item">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="6,0" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource CornerRadiusSmall}" />
+  </Style>
+  <Style Selector="Button.status-item /template/ Border#PART_Root">
+    <Setter Property="BoxShadow" Value="none" />
+  </Style>
+
+  <!-- An icon that turns while work runs; a style animation of RotateTransform.Angle would give every SymbolIcon a transform of its own. -->
+  <Style Selector="ui|SymbolIcon.spin">
+    <Setter Property="IsSpinning" Value="True" />
+  </Style>
+
+  <!-- A list row whose content stretches -->
+  <Style Selector="ListBox.rows ListBoxItem">
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+  </Style>
+</Styles>

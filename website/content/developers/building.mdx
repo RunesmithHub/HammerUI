@@ -1,0 +1,66 @@
+---
+title: Building and testing
+description: Install the tools, build HammerUI without warnings, and run the tests and the documentation site locally.
+---
+
+HammerUI is one library project, a gallery and a test project in `HammerUI.slnx`. This page covers the tools you need and the commands CI
+runs, so a change that passes here passes there.
+
+## Tools
+
+- The .NET 10 SDK. `global.json` pins the feature band and rolls forward to newer patches.
+- Node.js 22, only for the documentation site in `website/`.
+- Any editor with .NET support; the repository's `.editorconfig` sets the formatting.
+
+### On NixOS
+
+Avalonia and SkiaSharp load the system's font and X11 libraries by name when an app starts. NixOS keeps those out of the default library
+path, so running the gallery fails with `Unable to load shared library 'libSkiaSharp'` and `libfontconfig.so.1: cannot open shared object
+file`. The repository's `flake.nix` has a development shell with the .NET SDK, Node.js and those libraries on `LD_LIBRARY_PATH`. Work in
+it with `nix develop`, or with [direnv](https://direnv.net) through `.envrc`, and start your editor from it with
+`nix develop -c <editor>`, so the apps it runs find the libraries too.
+
+## Build
+
+```bash
+dotnet build HammerUI.slnx -warnaserror
+```
+
+The build has no warnings, and CI treats any warning as an error. Analyzers run at the `latest-recommended` level, and
+`BannedSymbols.txt` rejects calls that are easy to get wrong; each entry says why and what to use instead.
+
+## Test
+
+```bash
+dotnet test --solution HammerUI.slnx -- --ignore-exit-code 8
+```
+
+Tests run on Microsoft.Testing.Platform with xUnit v3, as `global.json` sets. The tests are in `tests/HammerUI.Tests`. A test
+project that finds no tests ends with exit code 8, which `--ignore-exit-code 8` accepts.
+
+## Formatting
+
+```bash
+dotnet format whitespace HammerUI.slnx
+dotnet format style HammerUI.slnx
+```
+
+The Checks workflow runs both with `--verify-no-changes` on every pull request.
+
+## The documentation site
+
+The site is a [Docusaurus](https://docusaurus.io) project in `website/`:
+
+```bash
+cd website
+npm ci
+npm start
+```
+
+`npm run build` checks the prose against `website/STYLE.md` first, then fails on broken links and anchors. `npm run typecheck` checks the
+site's TypeScript. [The site's README](https://github.com/RunesmithHub/HammerUI/blob/main/website/README.md) has the details.
+
+## Related
+
+- [Contributing](./contributing.mdx) for the conventions a change follows.
+- [Releasing](./releasing.mdx) for how a version is packed and published.

@@ -1,0 +1,18 @@
+name: Feature request
+description: Suggest a control, a theme option or new behavior.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you want to do
+      description: The application or workflow this is for, and what stands in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help
+      description: How you would like it to work.
+    validations:
+      required: true

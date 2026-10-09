@@ -1,0 +1,70 @@
+---
+title: Data display
+description: Asset tiles for file browsers, and the list, tree and tab styles the theme gives Avalonia's own item controls.
+---
+
+For lists of things, HammerUI styles Avalonia's `ListBox`, `TreeView` and `TabControl`, and adds `AssetTile`, a card for a file or asset
+browser. Selection, hover and focus look the same in every list, so a file tree, a list of results and a grid of tiles read as one
+application.
+
+## AssetTile
+
+A card with a thumbnail or an icon, the asset's name and a badge with its type.
+
+```xml
+<ListBox Classes="tiles" ItemsSource="{Binding Assets}">
+  <ListBox.ItemTemplate>
+    <DataTemplate>
+      <ui:AssetTile Title="{Binding Name}" Thumbnail="{Binding Preview}" Icon="{x:Static ui:Icons.Image}" TypeLabel="{Binding Extension}" />
+    </DataTemplate>
+  </ListBox.ItemTemplate>
+</ListBox>
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Thumbnail` | | A preview image. When null, `Icon` shows instead. |
+| `Icon` | | The icon for assets without a preview. |
+| `Title` | | The asset's name, trimmed to fit. |
+| `TypeLabel` | | A short type shown as a badge, such as `PNG` or `JSON`. |
+| `TypeBrush` | | The color of the badge and the icon, to tell types apart. |
+| `IsSelected` | false | Shows the tile as selected. |
+| `ThumbnailSize` | 72 | The size of the thumbnail area. |
+
+In a `ListBox` with the `tiles` class, items wrap into a grid and each tile shows its item's selection, so you do not set `IsSelected`
+yourself. Outside a list, set it from your own selection.
+
+## Lists
+
+`ListBox` items have the theme's hover and selection colors. Two classes change the layout:
+
+| Class | Effect |
+| --- | --- |
+| `ListBox.rows` | Rows stretch to the list's width, for rows with content at both ends. |
+| `ListBox.sidebar` | A navigation list with an accent indicator on the selected item, as in a settings window. |
+| `ListBox.tiles` | Items wrap into a grid of `AssetTile`s. |
+
+For a single choice from a few options, use a [SegmentedControl](./buttons.mdx#segmentedcontrol), which is a `ListBox` too.
+
+## Trees
+
+`TreeView` has compact rows indented 14 pixels per level, with chevrons that turn as items expand. Combine it with
+[DropIndicator](./feedback.mdx#drop-indicators) to reorder items by dragging.
+
+```xml
+<TreeView ItemsSource="{Binding Folders}">
+  <TreeView.ItemTemplate>
+    <TreeDataTemplate ItemsSource="{Binding Children}">
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <ui:SymbolIcon Data="{x:Static ui:Icons.Folder}" Size="14" />
+        <TextBlock Text="{Binding Name}" />
+      </StackPanel>
+    </TreeDataTemplate>
+  </TreeView.ItemTemplate>
+</TreeView>
+```
+
+## Tabs
+
+`TabControl` and `TabItem` have flat tabs with an accent underline on the selected one, for pages within a panel. For panels the user
+rearranges, use [docking](../docking.mdx).

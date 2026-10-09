@@ -1,0 +1,117 @@
+---
+title: Inputs and fields
+description: Number and vector fields that scrub and evaluate expressions, search boxes, path fields, input filters and readable validation messages.
+---
+
+HammerUI styles Avalonia's `TextBox`, `NumericUpDown`, `ComboBox`, `CheckBox`, `RadioButton`, `Slider` and `ToggleSwitch`, and adds the
+fields editors need: numbers you can drag, vectors, a search box and a file path. `ToolkitTheme` also filters what can be typed into numeric
+fields and explains invalid input in words.
+
+## NumberField
+
+A compact numeric field. Drag it to scrub the value, or click it to type a value or an arithmetic expression such as `16*2+4` or
+`(1 - 0.25) / 2`.
+
+```xml
+<ui:NumberField Value="{Binding Opacity}" Minimum="0" Maximum="1" Step="0.01" FormatString="0.##" />
+<ui:NumberField Value="{Binding Width}" Label="W" Suffix="px" IsInteger="True" Minimum="0" />
+<ui:NumberField Value="{Binding PositionX}" Label="X" Classes="axis-x" />
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Value` | 0 | The value, bound two-way. It is kept between `Minimum` and `Maximum`. |
+| `Minimum`, `Maximum` | unbounded | The range. |
+| `Step` | 1 | The change per pixel dragged and per arrow key. |
+| `FormatString` | `0.###` | The .NET format the value is shown in. |
+| `IsInteger` | false | Rounds the value to whole numbers. |
+| `Label` | | Short text at the left, such as an axis name. Dragging the label scrubs, even while typing. |
+| `LabelForeground` | | The label's color. The `axis-x`, `axis-y` and `axis-z` classes set the axis colors. |
+| `Suffix` | | A unit after the value, such as `px` or `°`. |
+| `IsMixed` | false | Shows a dash, for a field that edits several objects whose values differ, until it is edited. |
+
+### Behaviour
+
+- Dragging moves one `Step` per pixel. Hold <Keys>Shift</Keys> to move ten times finer and <Keys>Ctrl</Keys> ten times coarser.
+- Without typing, <Keys>Up</Keys> and <Keys>Right</Keys> step up, <Keys>Down</Keys> and <Keys>Left</Keys> step down, and
+  <Keys>Enter</Keys> or <Keys>F2</Keys> starts typing.
+- While typing, <Keys>Enter</Keys> or leaving the field commits and <Keys>Escape</Keys> reverts. An expression is evaluated when it commits.
+- Each drag, step or typed commit raises `EditStarted` and `EditCompleted`, so it can be [one undo step](./index.mdx#edits-and-undo).
+
+`BeginTextEdit()` focuses the field for typing, as a rename shortcut might.
+
+## Vector2Field
+
+Two number fields, X and Y in the axis colors, for a `System.Numerics.Vector2`:
+
+```xml
+<ui:Vector2Field Value="{Binding Position}" Step="0.5" Suffix="px" />
+```
+
+| Property | What it does |
+| --- | --- |
+| `Value` | The vector. |
+| `Minimum`, `Maximum`, `Step`, `FormatString`, `Suffix` | As on `NumberField`, for both components. |
+| `IsXMixed`, `IsYMixed` | Show a dash in one component that differs across the edited objects. |
+
+It raises `EditStarted` and `EditCompleted` around an edit of either component.
+
+## SearchBox
+
+A filter field with a search icon and a clear button. <Keys>Escape</Keys> clears it.
+
+```xml
+<ui:SearchBox Text="{Binding Filter}" PlaceholderText="Search assets" />
+```
+
+| Member | What it does |
+| --- | --- |
+| `Text` | The search text. |
+| `PlaceholderText` | Shown while the box is empty. |
+| `FocusInput()` | Focuses the box and selects its text, for a find shortcut. |
+| `Clear()` | Clears the text. |
+
+## PathField
+
+An editable file or folder path with a browse button that opens the system picker.
+
+```xml
+<ui:PathField Path="{Binding OutputFolder}" Mode="Folder" DialogTitle="Choose the output folder" PlaceholderText="No folder" />
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Path` | | The path. It can also be typed. |
+| `Mode` | `OpenFile` | What the button browses for: `OpenFile`, `SaveFile` or `Folder`. |
+| `DialogTitle` | Choose a file | The picker's title. |
+| `Filters` | all files | The file types offered, as `FileFilter` records such as `new FileFilter("PNG image", [".png"])`. |
+| `PlaceholderText` | | Shown while the path is empty. |
+
+The picker opens in the folder of the current path when it exists.
+
+## Input filters
+
+`ToolkitTheme` filters what can be typed into every `NumericUpDown`: whole numbers when its format has no decimals, decimal numbers
+otherwise. For a plain `TextBox`, set the filter yourself:
+
+```xml
+<TextBox ui:InputFilter.Mode="Hex" Text="{Binding ColorText}" />
+```
+
+| Mode | Accepts |
+| --- | --- |
+| `None` | Anything. |
+| `Integer` | Digits and a minus sign. |
+| `Decimal` | Digits, a minus sign and a decimal separator. |
+| `Hex` | Hexadecimal digits and `#`. |
+
+## Validation messages
+
+A field that is cleared, or holds text that cannot convert to its bound property, would normally show the conversion exception. With
+`ToolkitTheme`, every `TextBox` and `NumericUpDown` explains what it expects instead, such as "A value is required: enter a whole number from
+0 to 256.", and shows the bound value again when focus leaves it. Nothing needs to be set up.
+
+## Related
+
+- [Properties](./properties.mdx) to lay fields out in labelled rows.
+- [Colors](./colors.mdx) for color fields.

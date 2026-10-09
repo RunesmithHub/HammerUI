@@ -1,0 +1,92 @@
+---
+title: Curves and gradients
+description: Edit keyframed curves and color gradients in compact previews that open an editor, or in full editors, and evaluate them in your own code.
+---
+
+A curve maps time from 0 to 1 to a value, such as an easing or a size over a particle's lifetime. A gradient maps a position from 0 to 1 to
+a color. HammerUI has immutable value types for both, `Curve` and `Gradient` in `HammerUI.Values`, and two controls for each: a compact
+preview for a property row that opens an editor in a flyout, and the full editor for a panel of its own.
+
+## Previews
+
+```xml
+<ui:PropertyRow Label="Easing">
+  <ui:CurvePreview Curve="{Binding Easing}" />
+</ui:PropertyRow>
+<ui:PropertyRow Label="Colors">
+  <ui:GradientPreview Gradient="{Binding Colors}" />
+</ui:PropertyRow>
+```
+
+| Member | What it does |
+| --- | --- |
+| `CurvePreview.Curve`, `GradientPreview.Gradient` | The value, replaced with a new one on every edit. |
+| `OpenEditor()` | Opens the editor flyout, as clicking the preview does. |
+| `EditStarted`, `EditCompleted` | Raised around each edit in the flyout, for [undo](./index.mdx#edits-and-undo). |
+
+## CurveEditor
+
+A zoomable plot of the curve with its keys and the selected key's tangent handles, preset buttons, a button that fits the view and fields
+for the selected key.
+
+```xml
+<ui:CurveEditor Curve="{Binding Size}" Height="260" />
+```
+
+| Action | Result |
+| --- | --- |
+| Double-click | Adds a key. |
+| Drag a key or a handle | Moves it. <Keys>Ctrl</Keys> snaps to the grid, <Keys>Shift</Keys> locks the axis, <Keys>Alt</Keys> moves one handle only. |
+| <Keys>Delete</Keys> | Removes the selected key. |
+| Mouse wheel | Zooms; with <Keys>Shift</Keys> only time, with <Keys>Ctrl</Keys> only value. |
+| Drag the background | Pans. |
+| <Keys>F</Keys> | Fits the view to the curve. |
+| Right-click a key | Its interpolation and tangent options. |
+
+The presets are `CurvePresets.All`: constant, linear up and down, ease in, ease out, ease in and out, and bell. Each is also a property, such
+as `CurvePresets.EaseOut`.
+
+## GradientEditor
+
+A bar of color stops, the selected stop's location and a color picker for its color.
+
+```xml
+<ui:GradientEditor Gradient="{Binding Colors}" />
+```
+
+Click the bar to add a stop, drag a stop to move it, and drag it away or press <Keys>Delete</Keys> to remove it. The bar is a `GradientBar`
+of its own, with `SelectedStopIndex`, `SetSelectedColor(color)`, `SetSelectedPosition(position)` and `RemoveSelectedStop()` for building a
+different editor around it.
+
+## The values
+
+```csharp
+using HammerUI.Values;
+
+var size = new Curve([new CurveKey(0, 0), new CurveKey(0.2f, 1), new CurveKey(1, 0, Interpolation: CurveInterpolation.Linear)]);
+float half = size.Evaluate(0.5f);
+float[] lookup = size.Bake(64);
+
+var sunset = new Gradient([
+    new GradientStop(0, new Color(255, 205, 120)),
+    new GradientStop(0.55f, new Color(240, 110, 90)),
+    new GradientStop(1, new Color(90, 70, 160, 0)),
+]);
+Color middle = sunset.Evaluate(0.5f);
+```
+
+| Type | Members |
+| --- | --- |
+| `CurveKey(Time, Value, InTangent, OutTangent, Interpolation)` | A key. Tangents are slopes; `Interpolation` is `Smooth`, `Linear` or `Constant` for the segment that starts at the key. |
+| `Curve` | `Keys`, sorted by time; `Evaluate(time)`; `Bake(samples, start, end)` for lookups in hot loops; `Constant(value)`, `Linear(from, to)` and `One`. Before the first key and after the last, the curve holds their values. |
+| `GradientStop(Position, Color)` | A stop. |
+| `Gradient` | `Stops`; `Evaluate(position)`; `Bake(samples)`; `Solid(color)`, `Between(from, to)` and `White`. |
+| `Color(R, G, B, A)` | An RGBA color with `Parse`, `TryParse`, `Lerp`, `WithAlpha`, `White`, `Black` and `Transparent`. |
+
+Both types are records compared by value, so a binding sees an edit as a new value and an unchanged one as equal. `CurveEditing` has the
+operations the editor uses, such as `AddKey`, `MoveKey`, `Flatten` and `AutoTangents`, each returning a new curve.
+
+## Related
+
+- [Properties](./properties.mdx) for the rows previews sit in.
+- [Colors](./colors.mdx) for single colors.

@@ -1,0 +1,111 @@
+---
+title: Shell styles
+description: Style classes for the parts around a desktop application's content, the app bar, tool strip, floating surfaces and status bar, and the panel that keeps the app bar fitting.
+---
+
+Most of a desktop application's frame is plain Avalonia controls with a class: a `Border` with `appbar` is the bar at the top, a `TextBlock`
+with `status` is status bar text. HammerUI styles these classes in both themes, so the frame needs no colors or sizes of its own. This page
+lists the classes and shows `AppBarPanel`, which keeps an app bar usable as the window narrows.
+
+## The frame
+
+```xml
+<Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource BackgroundBrush}">
+  <Border Grid.Row="0" Classes="toolbar appbar" Height="40" Padding="8,0">
+    <!-- logo, menus, title and global actions -->
+  </Border>
+
+  <Border Grid.Row="1" Classes="toolstrip" Height="36" Padding="8,0">
+    <StackPanel Orientation="Horizontal" Spacing="6">
+      <TextBlock Classes="label" Text="Brush" />
+      <ComboBox SelectedIndex="0">
+        <ComboBoxItem Content="Round" />
+        <ComboBoxItem Content="Square" />
+      </ComboBox>
+      <ToggleButton Classes="option" ToolTip.Tip="Snap to grid">
+        <ui:SymbolIcon Data="{x:Static ui:Icons.Magnet}" />
+      </ToggleButton>
+    </StackPanel>
+  </Border>
+
+  <!-- the workspace -->
+
+  <Border Grid.Row="3" Classes="statusbar" Padding="12,0">
+    <StackPanel Orientation="Horizontal" Spacing="6">
+      <ui:SymbolIcon Classes="status success" Data="{x:Static ui:Icons.CheckCircle}" />
+      <TextBlock Classes="status" Text="Build succeeded" />
+    </StackPanel>
+  </Border>
+</Grid>
+```
+
+## Classes
+
+| Class | What it is |
+| --- | --- |
+| `Border.toolbar` | A 40 px bar on the window surface with a bottom border; combine it with `appbar` for the top bar. |
+| `Border.appbar` | The application's top bar: logo, menus, the open document's title and global actions. Its buttons do not take keyboard focus. |
+| `Button.toolbar` | A quiet 28 px app bar button; add `icon` for a square one. |
+| `Button.window-control` | Minimize, maximize and close, for a window that draws its own title bar; add `close` for the red hover. |
+| `Border.toolstrip` | A row of options under the app bar, such as the active tool's settings. Style `TextBlock.label` and `ComboBox` inside it. |
+| `ToggleButton.option` | A compact toggle for a tool strip option. |
+| `ToggleButton.header` | A small toggle beside a panel's tabs, for a panel's `HeaderActions`. |
+| `Border.floating` | A surface over content, such as a tool rail or zoom controls on a canvas. |
+| `Border.statusbar` | The status bar at the bottom. |
+| `TextBlock.status` | Status bar text. |
+| `SymbolIcon.status` | A status bar icon; add `success`, `warning`, `error` or `busy` for its color. |
+| `Button.status-item` | A status bar item that can be clicked, such as the caret position or the line endings. |
+| `Border.breadcrumbs`, `Button.crumb`, `SymbolIcon.crumb-separator` | A path as a row of clickable parts, such as under an editor's tabs; add `current` to the last part. |
+| `SymbolIcon.spin` | An icon that turns, while work runs. |
+| `ListBox.rows` | A list whose rows stretch to its width. |
+| `ListBox.sidebar` | A navigation list with an indicator on the selected item, as in a settings window. |
+| `Border.divider-v` | A thin vertical divider between groups of app bar buttons. |
+
+## Keep the app bar fitting
+
+`AppBarPanel` holds the app bar's content and measures it against the width it has. As the window narrows, it applies three cumulative
+classes to itself, `compact`, then `narrow`, then `collapsed`, and your styles hide the least important parts under each:
+
+```xml
+<Border Classes="toolbar appbar" Height="44" Padding="8,0">
+  <ui:AppBarPanel Title="{Binding #DocumentTitle}">
+    <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <ui:SymbolIcon Data="{x:Static ui:Icons.Hammer}" />
+        <TextBlock Classes="product" Text="My app" FontWeight="SemiBold" />
+      </StackPanel>
+      <Menu Grid.Column="1" Classes="menus">...</Menu>
+      <TextBlock x:Name="DocumentTitle" Grid.Column="2" Text="level-01.json" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" />
+      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4">
+        <Button Classes="accent">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ui:SymbolIcon Data="{x:Static ui:Icons.Play}" />
+            <TextBlock Classes="label" Text="Run" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Grid>
+  </ui:AppBarPanel>
+</Border>
+```
+
+```xml
+<Style Selector="ui|AppBarPanel.compact TextBlock.label">
+  <Setter Property="IsVisible" Value="False" />
+</Style>
+<Style Selector="ui|AppBarPanel.narrow TextBlock.product">
+  <Setter Property="IsVisible" Value="False" />
+</Style>
+```
+
+| Property | What it does |
+| --- | --- |
+| `Title` | The part of the bar that shrinks to fit, such as the open document's title. It hides when too little of it would show. |
+
+The panel uses the fullest form that fits with room for the title, then the fullest that fits without it, and applies `collapsed` only when
+the bar does not fit even then, typically to fold the menus into one menu button. Its single child is the bar.
+
+## Related
+
+- [Theming](./theming.mdx#text-and-surface-classes) for text, card and divider classes.
+- [Buttons and badges](./controls/buttons.mdx) for the button classes used in bars.

@@ -1,0 +1,31 @@
+---
+title: Introduction
+description: What HammerUI is, what it gives an Avalonia application and where to start.
+slug: /
+---
+
+HammerUI is a UI library for [Avalonia](https://avaloniaui.net) on .NET 10. Add one theme to your application and every standard control
+takes on a consistent look in light and dark, with an accent color you can change while the application runs. On top of that, HammerUI
+adds the parts desktop tools need and Avalonia leaves to you: docking, dialogs, toasts, icons, property panels and editor-grade fields.
+
+## What you get
+
+| Part | What it does |
+| --- | --- |
+| [Theming](./theming.mdx) | Light and dark palettes, a system mode, a runtime accent color and resource keys for your own controls. |
+| [Icons](./icons.mdx) | Line icons on a 24 × 24 grid, found by name, with aliases. You can add icons and replace built-in ones. |
+| [Docking](./docking.mdx) | Splits of tab groups whose tabs drag between groups, to edges and out into their own windows; layouts save as JSON. |
+| [Dialogs and toasts](./dialogs-and-toasts.mdx) | Modal dialogs inside the window, confirmation and unsaved-changes questions, and notifications in the corner. |
+| [Shell styles](./shell-styles.mdx) | The app bar, tool strip and status bar of a desktop application, and a panel that keeps the app bar fitting. |
+| [Controls](./controls/index.mdx) | Badges, segmented controls, number and vector fields, property rows, color, curve and gradient editors, and more. |
+
+## Where to start
+
+<CardGrid columns={2}>
+  <Card title="Getting started" icon="rocket" to="/guide/getting-started">
+    Add the package and the theme, and build a first window with an app bar, a workspace and a status bar.
+  </Card>
+  <Card title="The gallery" icon="palette" to="/developers/gallery">
+    Run the sample application that shows every control in both themes.
+  </Card>
+</CardGrid>

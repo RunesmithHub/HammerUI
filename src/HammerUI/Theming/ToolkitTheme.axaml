@@ -1,0 +1,32 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HammerUI.Theming.ToolkitTheme">
+  <FluentTheme DensityStyle="Compact" />
+
+  <StyleInclude Source="avares://HammerUI/Themes/Styles/Typography.axaml" />
+  <StyleInclude Source="avares://HammerUI/Themes/Styles/Surfaces.axaml" />
+  <StyleInclude Source="avares://HammerUI/Themes/Styles/Inputs.axaml" />
+  <StyleInclude Source="avares://HammerUI/Themes/Styles/Menus.axaml" />
+  <StyleInclude Source="avares://HammerUI/Themes/Styles/Lists.axaml" />
+  <StyleInclude Source="avares://HammerUI/Themes/Styles/Editor.axaml" />
+  <StyleInclude Source="avares://HammerUI/Themes/Styles/Shell.axaml" />
+
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://HammerUI/Themes/Metrics.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Buttons.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Items.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Primitives.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Panels.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Overlays.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/ColorPicker.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Fields.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Tree.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Editor.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/Docking.axaml" />
+        <ResourceInclude Source="avares://HammerUI/Themes/Controls/ToolStripe.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+</Styles>

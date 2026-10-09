@@ -1,0 +1,61 @@
+---
+title: Releasing
+description: How pushing a version tag packs HammerUI, pushes the package to the Runesmith hub feed and creates a GitHub release.
+---
+
+A release is a version tag. Pushing a tag such as `v0.2.0` runs the Release workflow, which packs the library with that version, pushes
+the package to the Runesmith hub feed at `https://nuget.runesmith.dev/index.json` and creates a GitHub release with the package attached.
+
+## Make a release
+
+<Steps>
+
+1. Check that `main` builds, its tests pass and the documentation describes the changes.
+2. Tag the commit and push the tag:
+
+   ```bash
+   git tag v0.2.0
+   git push origin v0.2.0
+   ```
+
+3. Approve the **hub-feed** deployment when the **Release** workflow asks for it. When the workflow finishes, the package is on the hub
+   feed and the release, with notes generated from the commits since the last tag, is under **Releases**.
+
+</Steps>
+
+## Versions
+
+The version comes from the tag, without the `v`. `Directory.Build.props` reads it from the `HammerUIVersion` environment variable the
+workflow sets, and uses 0.1.0 for local builds.
+
+A tag with a pre-release part, such as `v0.3.0-rc.1`, makes a pre-release. Follow [semantic versioning](https://semver.org): a breaking
+change to a public API raises the major version, or the minor version before 1.0. A version on the feed never changes: pushing it again
+fails, so a fix needs a new version.
+
+## What the workflow does
+
+| Job | Runs | What it does |
+| --- | --- | --- |
+| Pack | Every run | Packs `src/HammerUI` in Release with `-warnaserror` and uploads the package as an artifact. |
+| Publish | Version tags | Pushes the package to the hub feed with [Sleet](https://github.com/emgarten/Sleet), then creates the release. |
+
+Pull requests that change the workflow, and runs started by hand, pack with a `-ci.` version and publish nothing, so the workflow can be
+tested safely.
+
+## The hub feed
+
+The hub feed is a static NuGet feed that Sleet writes to a Cloudflare R2 bucket. The Publish job runs in the `hub-feed` environment,
+which holds the bucket's settings; require a reviewer on it so every publish waits for approval:
+
+| Name | Kind | Value |
+| --- | --- | --- |
+| `HUB_FEED_ACCOUNT_ID` | Variable | The Cloudflare account ID, which names the R2 endpoint. |
+| `HUB_FEED_BUCKET` | Variable | The bucket that holds the feed. |
+| `HUB_FEED_ACCESS_KEY_ID` | Secret | The access key ID of an R2 token that can write to the bucket only. |
+| `HUB_FEED_SECRET_ACCESS_KEY` | Secret | That token's secret access key. |
+
+The job writes the Sleet configuration from these when it runs, so no credentials are in the repository.
+
+## Related
+
+- [Getting started](/guide/getting-started) for how applications add the published package.

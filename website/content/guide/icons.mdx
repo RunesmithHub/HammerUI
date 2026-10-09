@@ -1,0 +1,67 @@
+---
+title: Icons
+description: Draw HammerUI's line icons with SymbolIcon, find them by name, and add or replace icons for your application.
+---
+
+HammerUI has a set of line icons drawn on a 24 × 24 grid, adapted from [Lucide](https://lucide.dev). `SymbolIcon` draws one at any size
+in the current text color. Each icon is a property of the `Icons` class, and can also be found by name, so plugins and settings files can
+refer to icons as text. Applications can add their own icons and replace built-in ones.
+
+## Show an icon
+
+```xml
+<ui:SymbolIcon Data="{x:Static ui:Icons.FolderOpen}" />
+<ui:SymbolIcon Data="{x:Static ui:Icons.Play}" Size="20" IsFilled="True" Foreground="{DynamicResource AccentBrush}" />
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Data` | | The icon's geometry, usually an `Icons` property. |
+| `Size` | 16 | The width and height the 24 × 24 icon is scaled to. |
+| `StrokeThickness` | 2 | The line width on the 24 × 24 grid. |
+| `IsFilled` | false | Fills the shape as well, for solid icons such as play and stop. |
+| `Foreground` | inherited | The color; inherited like text color, so an icon in a button takes the button's color. |
+
+In code, `new SymbolIcon { Data = Icons.Search, Size = 14 }`.
+
+## Find icons by name
+
+Every icon has a kebab-case name made from its property name: `Icons.FolderOpen` is `folder-open`. Lookups ignore case, dashes, underscores,
+spaces and dots, so `FolderOpen`, `folder_open` and `folder open` find the same icon.
+
+```csharp
+Geometry? icon = Icons.Find("folder-open");
+if (Icons.TryFind(settings.IconName, out var found))
+    button.Content = new SymbolIcon { Data = found };
+```
+
+| Member | What it does |
+| --- | --- |
+| `Icons.Find(name)` | The icon, or null when no icon has that name. |
+| `Icons.TryFind(name, out icon)` | The same, as a try pattern. |
+| `Icons.Exists(name)` | Whether an icon has that name. It creates no geometry, so any thread may call it. |
+| `Icons.Names` | Every icon's canonical name, sorted, including registered ones. |
+
+Some names are aliases for another icon, such as `delete` for `trash`, `close` for `x`, `script` for `file-code` and `warning` for
+`alert-triangle`.
+
+Geometries belong to the thread that creates them, so ask for icons on the UI thread. Code on other threads can pass names around and check
+them with `Exists`.
+
+## Add and replace icons
+
+`Icons.Register` adds an icon from SVG path data on the same 24 × 24 grid. Each path is drawn as its own stroke. A built-in name replaces
+that icon, also where the code uses the property, such as `Icons.Folder`:
+
+```csharp
+Icons.Register("git-branch", "M6 3v12", "M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M18 9a9 9 0 0 1-9 9");
+Icons.AddAlias("branch", "git-branch");
+```
+
+`Icons.AddAlias(alias, icon)` makes a name find another icon. Aliases you add take precedence over built-in ones.
+
+Controls that already show an icon keep the geometry they have, so register icons at startup, before the windows that show them are created.
+
+## Related
+
+- The [gallery](/developers/gallery) has an **Icons** panel that lists every icon with its name; click one to copy the name.

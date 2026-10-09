@@ -1,0 +1,35 @@
+---
+title: Controls
+description: An overview of HammerUI's controls and the pages that describe them.
+---
+
+`ToolkitTheme` restyles Avalonia's own controls, such as `Button`, `TextBox`, `ComboBox`, `ListBox`, `TreeView` and `TabControl`, so they
+need nothing more than the theme. HammerUI adds controls Avalonia does not have, for the panels, inspectors and editors of desktop tools.
+All of them are in the `https://github.com/runesmithhub/hammerui` XAML namespace, written `ui:` on these pages, and in the
+`HammerUI.Controls` namespace in C#.
+
+| Page | Controls |
+| --- | --- |
+| [Buttons and badges](./buttons.mdx) | Button classes, tool toggles, `Badge`, `ShortcutBadge`, `SegmentedControl`, filter chips. |
+| [Inputs and fields](./fields.mdx) | `NumberField`, `Vector2Field`, `SearchBox`, `PathField`, input filters and validation messages. |
+| [Properties](./properties.mdx) | `PropertyGroup`, `PropertyRow` and the shared label column. |
+| [Colors](./colors.mdx) | `ColorPickerButton`, `ColorPicker`, `ColorSwatch`, `ColorSwatchPicker`. |
+| [Curves and gradients](./curves-and-gradients.mdx) | `CurvePreview`, `CurveEditor`, `GradientPreview`, `GradientEditor` and the values they edit. |
+| [Feedback and empty states](./feedback.mdx) | `EmptyState`, `Sparkline`, status icons and drop indicators. |
+| [Layout helpers](./layout.mdx) | `SectionPanel`, `SettingRow`, `SplitBar`. |
+| [Data display](./data.mdx) | `AssetTile` grids, lists and trees. |
+
+Every control is in the [gallery](/developers/gallery), in both themes.
+
+## Edits and undo
+
+Controls that are edited by dragging, such as number fields, curve editors and gradient bars, raise `EditStarted` when a drag or a typed
+edit begins and `EditCompleted` when it ends. Between them the value changes many times. Group those changes into one undo step: open the
+step on `EditStarted` and close it on `EditCompleted`.
+
+`ValueEdit` has the same events as routed events, so one handler on a panel covers every field in it:
+
+```csharp
+ValueEdit.AddStartedHandler(inspector, (_, _) => history.BeginGroup());
+ValueEdit.AddCompletedHandler(inspector, (_, _) => history.EndGroup());
+```

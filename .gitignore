@@ -1,0 +1,18 @@
+bin/
+obj/
+/packages/
+*.user
+.idea/
+.vs/
+/_ReSharper.Caches/
+riderModule.iml
+TestResults/
+/artifacts/
+
+# Documentation site
+website/node_modules/
+website/build/
+website/.docusaurus/
+
+# direnv
+.direnv/

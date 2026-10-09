@@ -1,0 +1,104 @@
+---
+title: Buttons and badges
+description: Button classes for each role, icon buttons and tool toggles, badges, shortcut badges, segmented controls and filter chips.
+---
+
+HammerUI styles Avalonia's `Button`, `ToggleButton` and `RepeatButton` and gives them classes for their role, so a toolbar, a dialog footer
+and a tool rail each use the same buttons with a different class. It adds three small controls that sit next to buttons: `Badge`,
+`ShortcutBadge` and `SegmentedControl`.
+
+## Buttons
+
+```xml
+<StackPanel Orientation="Horizontal" Spacing="8">
+  <Button Classes="accent" Content="Save" />
+  <Button Content="Cancel" />
+  <Button Classes="subtle" Content="Reset" />
+  <Button Classes="danger" Content="Delete" />
+  <Button Classes="icon" ToolTip.Tip="Undo">
+    <ui:SymbolIcon Data="{x:Static ui:Icons.Undo}" />
+  </Button>
+</StackPanel>
+```
+
+| Class | Use it for |
+| --- | --- |
+| none | Ordinary actions. |
+| `accent` | The main action of a dialog or panel. Use one per area. |
+| `subtle` | Quiet actions that should not draw the eye, such as **Reset**. |
+| `danger` | Destructive actions, such as **Delete**. |
+| `icon` | A square, borderless button holding a `SymbolIcon`. Give it a tooltip. |
+| `small` | A shorter button; `icon small` is a small icon button, as in panel headers. |
+
+The classes apply to `Button`, `RepeatButton` and `ToggleButton`. A checked `ToggleButton` takes the subtle accent color.
+
+## Tool toggles
+
+`ToggleButton.tool` is a 36 × 36 tool button for a tool rail, with an accent indicator while checked. Put the tools of one rail in a
+`Border.floating` or a toolbar and keep one checked:
+
+```xml
+<Border Classes="floating">
+  <StackPanel Spacing="2">
+    <ToggleButton Classes="tool" IsChecked="True" ToolTip.Tip="Select">
+      <ui:SymbolIcon Data="{x:Static ui:Icons.MousePointer}" Size="18" />
+    </ToggleButton>
+    <ToggleButton Classes="tool" ToolTip.Tip="Move">
+      <ui:SymbolIcon Data="{x:Static ui:Icons.Move}" Size="18" />
+    </ToggleButton>
+  </StackPanel>
+</Border>
+```
+
+`ToggleButton.chip` is a filter chip, such as the severities of a log: checked chips are raised, unchecked chips fade.
+
+## Badge
+
+A small pill label for counts and states. Its content is usually text.
+
+```xml
+<ui:Badge Content="Default" />
+<ui:Badge Classes="accent" Content="New" />
+<ui:Badge Classes="success" Content="Saved" />
+<ui:Badge Classes="warning" Content="3 warnings" />
+<ui:Badge Classes="danger" Content="Error" />
+```
+
+| Class | Tone |
+| --- | --- |
+| none | Neutral. |
+| `accent`, `success`, `warning`, `danger` | The matching palette color. |
+
+## ShortcutBadge
+
+Shows a keyboard shortcut as a row of key caps, for menus, tooltips and command lists.
+
+```xml
+<ui:ShortcutBadge Text="Ctrl+Shift+P" />
+```
+
+| Property | What it does |
+| --- | --- |
+| `Text` | The shortcut, with keys separated by `+`. `Ctrl++` shows the plus key. |
+| `Keys` | The keys parsed from `Text`, read-only. |
+
+## SegmentedControl
+
+A single choice from a few options, shown as a row of joined segments. It is a `ListBox`, so bind `ItemsSource` and `SelectedItem` or
+`SelectedIndex` as you would for a list.
+
+```xml
+<ui:SegmentedControl SelectedIndex="1">
+  <ui:SegmentedControlItem Content="Day" />
+  <ui:SegmentedControlItem Content="Week" />
+  <ui:SegmentedControlItem Content="Month" />
+</ui:SegmentedControl>
+```
+
+Segments share the width equally. When the control is too narrow for its segments, they continue on another row rather than cutting off
+their content.
+
+## Related
+
+- [Shell styles](../shell-styles.mdx) for buttons in the app bar, tool strip and status bar.
+- [Icons](../icons.mdx) for the icons inside icon buttons.

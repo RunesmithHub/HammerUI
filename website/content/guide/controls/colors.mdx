@@ -1,0 +1,82 @@
+---
+title: Colors
+description: Color fields that open a full picker, the picker itself, color swatches and a picker of preset swatches.
+---
+
+HammerUI has four color controls. `ColorPickerButton` is the color field for property rows and toolbars: a swatch and the hex value that
+opens `ColorPicker` in a flyout. `ColorPicker` is the full editor and can also sit in a panel of its own. `ColorSwatch` shows a color, and
+`ColorSwatchPicker` picks one from presets. They all edit `Avalonia.Media.Color`; use `ToAvalonia()` and `ToValue()` to convert to and from
+`HammerUI.Values.Color`.
+
+## ColorPickerButton
+
+```xml
+<ui:ColorPickerButton Color="{Binding Tint}" Width="120" />
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Color` | | The color. |
+| `IsAlphaEnabled` | true | Whether the picker edits transparency. |
+| `Colors` | a balanced set | Preset swatches offered under the picker. |
+| `Hex` | | The color as `#RRGGBB`, or `#AARRGGBB` when translucent, read-only. |
+
+Clicking the field opens the picker under it. The picker edits the field's color as you drag, and keeps the color the field had when it
+opened for comparison.
+
+## ColorPicker
+
+A full color editor: a saturation and value square, hue and alpha sliders, and hex and RGBA fields.
+
+```xml
+<ui:ColorPicker Color="{Binding Tint}" OriginalColor="{Binding SavedTint}" IsAlphaEnabled="False" />
+```
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `Color` | | The edited color. |
+| `OriginalColor` | | The color before editing, shown beside the current one. Clicking it restores it. |
+| `IsAlphaEnabled` | true | Whether transparency can be edited; without it the alpha slider and field hide. |
+
+## ColorSwatch
+
+A color as a rounded chip, with a checkerboard behind translucent colors, for lists and legends.
+
+```xml
+<ui:ColorSwatch Color="#806366F1" Width="20" Height="20" CornerRadius="4" />
+```
+
+| Property | What it does |
+| --- | --- |
+| `Color` | The color shown. |
+| `CornerRadius` | The chip's corner radius. |
+| `BorderBrush` | The 1 pixel outline. |
+
+## ColorSwatchPicker
+
+A grid of preset swatches with a hex box, for choosing from a palette such as label colors.
+
+```xml
+<ui:ColorSwatchPicker SelectedColor="{Binding LabelColor}" />
+```
+
+| Property | What it does |
+| --- | --- |
+| `SelectedColor` | The chosen color. Typing a hex value chooses it too. |
+| `Colors` | The preset swatches; `ColorSwatchPicker.DefaultColors` when not set. |
+
+## Converting colors
+
+`HammerUI.Values.Color` is a plain RGBA value for models that should not depend on Avalonia. `ColorExtensions` converts:
+
+```csharp
+using HammerUI.Controls;
+
+Avalonia.Media.Color shown = model.Tint.ToAvalonia();
+HammerUI.Values.Color stored = picker.Color.ToValue();
+```
+
+## Related
+
+- [Theming](../theming.mdx) to change the accent color, as the gallery's accent field does.
+- [Curves and gradients](./curves-and-gradients.mdx) for gradients of colors.

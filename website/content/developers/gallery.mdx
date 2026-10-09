@@ -1,0 +1,48 @@
+---
+title: The gallery
+description: Run the sample application that shows every HammerUI control in a docked workspace, in light and dark, and add a control to it.
+---
+
+The gallery, in `samples/HammerUI.Gallery`, is a small application built with HammerUI that shows every control. It is a docked workspace
+with one panel per kind of control, so it also shows docking, floating windows, dialogs and toasts at work. Use it to check a change in both
+themes before you open a pull request.
+
+## Run it
+
+```bash
+dotnet run --project samples/HammerUI.Gallery
+```
+
+Debug builds support Avalonia's developer tools, for inspecting the visual tree and the styles applied.
+
+## What it has
+
+| Panel | Shows |
+| --- | --- |
+| Buttons | Button classes, icon buttons and tool toggles, badges, segmented controls and shortcut badges. |
+| Inputs | Text, choice and toggle inputs as the theme styles them. |
+| Fields | Number fields that scrub and evaluate expressions, vector and path fields, and curve and gradient previews. |
+| Properties | Property groups and rows sharing one resizable label column. |
+| Curves and gradients | The curve and gradient editors at full size. |
+| Feedback | Toasts of every kind, message and confirmation dialogs, and an empty state. |
+| Icons | Every icon with its name. The search box filters them; clicking one copies its name. |
+| Files | A file tree and asset tiles, as a file browser shows them. |
+
+The app bar has an accent field that changes the accent color of both themes, **Reset layout**, which puts every panel back where it
+started, and a button that switches between light and dark.
+
+## Add a control
+
+<Steps>
+
+1. Add the control to the page that matches its kind in `samples/HammerUI.Gallery/Pages`, in a `Card` with a title and, when it helps, a
+   one-sentence description. `Layout.Row` and `Layout.Pairs` lay out several controls.
+2. For a new kind of control, add a page: a static class with a `Create()` method returning the page, then a `DockablePanel` for it in
+   `MainWindow.axaml.cs` and its id in `CreateLayout()`.
+3. Run the gallery and check the control in light and dark, with another accent color, and in a narrow panel.
+
+</Steps>
+
+## Related
+
+- [Project layout](./project-layout.mdx) for where the library's controls live.

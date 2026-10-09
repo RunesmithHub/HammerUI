@@ -1,0 +1,117 @@
+---
+title: Theming
+description: Light, dark and system modes, the accent color, palettes and the resource keys controls take their colors and sizes from.
+---
+
+HammerUI's theme, `ToolkitTheme`, holds a light and a dark palette and applies the one that matches the application's theme variant. Every
+control takes its colors, sizes and corner radii from theme resources, so a change of mode, accent or palette reaches every control in place,
+without restarting. This page covers switching modes and accents, replacing palettes, and using the same resources in your own controls.
+
+## Modes and accents
+
+`ThemeManager` changes the mode and the accent of an application that includes `ToolkitTheme`. Create it once, after the application
+has loaded its styles, and keep it:
+
+```csharp
+using HammerUI.Theming;
+
+var theme = new ThemeManager(Application.Current!);
+theme.Mode = ThemeMode.System;
+theme.Accent = Avalonia.Media.Color.Parse("#5B5BEF");
+theme.Changed += (_, _) => Console.WriteLine(theme.ActualVariant);
+```
+
+| Member | What it does |
+| --- | --- |
+| `Mode` | `ThemeMode.System` follows the operating system, `Light` and `Dark` fix the variant. Setting it changes the application's `RequestedThemeVariant`. |
+| `Accent` | The accent color of both palettes. Hover, pressed and subtle shades are derived from it. |
+| `ActualVariant` | The variant in effect, with `System` resolved to light or dark. |
+| `Changed` | Raised when the mode, the accent or the variant in effect changes. |
+
+`ThemeManager` implements `IThemeManager`, so you can pass the interface to code that only switches themes. It listens to the application,
+so dispose it when the application exits.
+
+A toggle between light and dark, as the gallery's app bar has:
+
+```csharp
+theme.Mode = theme.ActualVariant == ThemeVariant.Dark ? ThemeMode.Light : ThemeMode.Dark;
+```
+
+## Palettes
+
+A `ThemePalette` is the set of colors one variant uses. `ThemePalette.Light` and `ThemePalette.Dark` are the defaults; the default accent
+is `#5B5BEF`. To change more than the accent, create a palette with `with` and give it to the theme:
+
+```csharp
+var toolkit = Application.Current!.Styles.OfType<ToolkitTheme>().First();
+toolkit.DarkPalette = ThemePalette.Dark with { Background = Avalonia.Media.Color.Parse("#101114") };
+```
+
+`ToolkitTheme.LightPalette` and `DarkPalette` replace one palette, `SetPalette(variant, palette)` does the same by variant and
+`SetAccent(color)` changes the accent of both. The colors a palette sets:
+
+| Color | Used for |
+| --- | --- |
+| `Accent`, `AccentForeground` | Only the focused element, the primary button, the selected item and progress, and the text on them. |
+| `Background` | Surface level 0: the window itself, its toolbars, stripes and status bar. |
+| `Surface`, `SurfaceRaised`, `SurfaceSunken` | Surface level 1, panels and editors; level 2, popups, menus and dialogs; and recessed areas such as fields. |
+| `SurfaceHover`, `SurfacePressed` | Translucent overlays for hovered and pressed items. |
+| `BorderSubtle`, `BorderStrong` | Dividers and outlines, and the outlines of inputs. |
+| `TextPrimary`, `TextSecondary`, `TextMuted`, `TextDisabled` | Text from most to least prominent. |
+| `Success`, `Warning`, `Danger`, `Info` | Status colors for badges, toasts and validation. |
+| `Scrim` | The dimming behind dialogs. |
+
+`AccentHover`, `AccentPressed` and `AccentSubtle` are derived from `Accent`; `Outline`, the faint line around popups, from `TextPrimary`; `IsDark` tells from the background whether a palette is dark.
+`ColorMath.Mix`, `WithAlpha` and `Luminance` are the helpers the derivation uses, and you can use them too.
+
+## Resource keys
+
+Every palette color is published as a brush and as a color: `AccentBrush` and `AccentColor`, `SurfaceBrush` and `SurfaceColor`, and so on
+for each color above. The three surface levels are also published as `Surface0Brush`, `Surface1Brush` and `Surface2Brush`, and the popup outline as
+`OutlineBrush`. The names are constants on `ThemeKeys`, for code that looks resources up. Reference them with `DynamicResource`, so
+your controls follow mode and accent changes:
+
+```xml
+<Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1"
+        CornerRadius="{DynamicResource CornerRadiusLarge}">
+  <TextBlock Text="Ready" Foreground="{DynamicResource TextSecondaryBrush}" />
+</Border>
+```
+
+In code, bind to the resource rather than reading it once:
+
+```csharp
+text.Bind(TextBlock.ForegroundProperty, text.GetResourceObservable(ThemeKeys.TextSecondaryBrush));
+```
+
+The theme also publishes sizes, fonts and shadows:
+
+| Key | Value |
+| --- | --- |
+| `CornerRadiusSmall`, `CornerRadiusMedium`, `CornerRadiusLarge` | 4, 6 and 8 |
+| `FontSizeCaption`, `FontSizeBody`, `FontSizeSubtitle`, `FontSizeTitle` | 12, 13, 14 and 20 |
+| `ControlHeight`, `RowHeight` | 28, the height of buttons, fields and list rows |
+| `ToolbarHeight`, `StripeWidth` | 40, the height of toolbars and the width of tool stripes |
+| `MonoFontFamily` | Cascadia Mono, JetBrains Mono, Consolas and other monospaced fonts, the first one installed |
+| `ShadowRaised`, `ShadowPopup` | The shadows of raised cards and of popups, set per variant |
+
+Sizes and spacing follow a 4 px grid. Menus, context menus and flyouts fade in over 120 ms.
+## Text and surface classes
+
+The theme styles some plain controls by class, so you rarely set colors on text yourself:
+
+| Class | Effect |
+| --- | --- |
+| `TextBlock.title`, `subtitle` | Page and section titles. |
+| `TextBlock.section` | Small uppercase headings over groups of content. |
+| `TextBlock.caption`, `muted`, `secondary` | Smaller or quieter text. |
+| `TextBlock.mono` | Monospaced text, such as values and paths. |
+| `Border.card` | A raised card with a border and rounded corners. |
+| `Border.surface0`, `surface1`, `surface2` | A surface of that level; `surface2`, also named `popup`, adds the outline, rounded corners and the popup shadow. |
+| `Border.panel` | A panel surface. |
+| `Border.divider-h`, `divider-v` | Thin horizontal and vertical dividers. |
+
+## Related
+
+- [Shell styles](./shell-styles.mdx) for the app bar, tool strip and status bar.
+- [Controls](./controls/index.mdx) for the classes each control accepts.

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/RunesmithHub/HammerUI/tree/main/website/content
+    about: How to use the controls, themes, icons and docking.
+  - name: Report a vulnerability
+    url: https://github.com/RunesmithHub/HammerUI/security/advisories/new
+    about: Report security problems privately instead of in an issue.
