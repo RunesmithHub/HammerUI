@@ -2,6 +2,9 @@ using Avalonia;
 using Avalonia.Headless;
 using HammerUI.Theming;
 
+// Every test runs on the one headless UI thread, where a test's RunJobs would also run the jobs of tests in other classes.
+[assembly: Xunit.v3.Parallelization(Mode = Xunit.Sdk.ParallelMode.None)]
+
 namespace HammerUI.Tests;
 
 /// <summary>The one headless Avalonia session of the test project; Avalonia starts only once per process.</summary>
