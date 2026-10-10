@@ -16,7 +16,7 @@ The guide and the developer reference for HammerUI, built with Docusaurus.
 ## Publishing
 
 `.github/workflows/website.yml` builds the site on every pull request that changes `website/` and publishes it to GitHub Pages from `main`.
-The build reads its address from `SITE_URL` and `BASE_URL`; without them it builds for `https://runesmithhub.github.io/HammerUI/`.
+The build reads its address from `SITE_URL` and `BASE_URL`; without them it builds for `https://hammerui.runesmith.dev/`.
 
 ## Structure
 
