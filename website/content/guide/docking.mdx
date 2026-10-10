@@ -41,9 +41,11 @@ Workspace.ContentProvider = panels;
 Workspace.Layout = layout;
 ```
 
-Each panel's content is created the first time the panel shows, and the host keeps that control for the panel's lifetime: while it moves
-between groups and windows, hides behind another tab, or is closed and reopened. State such as scroll positions and text selections survives
-every rearrangement.
+Each panel's content is created the first time the panel shows, and the host keeps that control while the panel is open: while it moves
+between groups and windows or hides behind another tab. State such as scroll positions and text selections survives every rearrangement.
+When a panel closes, the host forgets it and asks the provider again when the panel reopens. A panel that keeps its control, as
+`DockablePanel` does, comes back as it was; a new panel the provider gives for the same id, such as for a document opened again, shows its
+own content.
 
 ## Panels
 

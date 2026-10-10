@@ -27,7 +27,8 @@ public interface IDockPanel
     /// <summary>Gets whether the tab has a close button.</summary>
     bool CanClose { get; }
 
-    /// <summary>Gets the panel's content. The host keeps this instance for the panel's lifetime, also while it is moved or closed.</summary>
+    /// <summary>Gets the panel's content. The host keeps this instance while the panel is open, also while it is moved, and asks again once
+    /// the panel has closed and opens again.</summary>
     Control Content { get; }
 
     /// <summary>Gets controls shown at the right of the tab strip while the panel is active, such as small icon buttons.</summary>

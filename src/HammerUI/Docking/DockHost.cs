@@ -29,8 +29,9 @@ public sealed class DockPanelClosingEventArgs(string panelId) : RoutedEventArgs(
 /// panels, and opens a window for each of the layout's floating windows.</summary>
 /// <remarks>
 /// Panels come from <see cref="ContentProvider"/>. Each panel's content control is created once and kept while the panel is moved, also
-/// between windows, hidden behind another tab, maximized or closed, so its state survives every layout change. A tab dragged outside every
-/// window opens in a window of its own, and closing that window returns its panels to the workspace.
+/// between windows, hidden behind another tab or maximized, so its state survives every layout change. Once a panel closes, or the provider
+/// gives another panel for its id, the host forgets it, so a panel opened again under the same id shows what the provider has then. A tab
+/// dragged outside every window opens in a window of its own, and closing that window returns its panels to the workspace.
 /// </remarks>
 public class DockHost : Control
 {
@@ -151,7 +152,7 @@ public class DockHost : Control
     /// <summary>Gets the content control of a panel, creating it on first use; null when the provider does not know the panel.</summary>
     public Control? GetContent(string panelId) => GetPanel(panelId) is { } panel ? GetContent(panel) : null;
 
-    /// <summary>Closes a panel when it allows closing; its content is kept for when it is shown again.</summary>
+    /// <summary>Closes a panel when it allows closing; the host asks the provider for the panel again when it opens next.</summary>
     public bool ClosePanel(string panelId)
     {
         if (Layout is null || GetPanel(panelId) is { CanClose: false })
@@ -189,11 +190,30 @@ public class DockHost : Control
         if (!_contents.TryGetValue(panel, out var content))
         {
             content = panel.Content;
-            content.Classes.Add("dock-content");
+            if (!content.Classes.Contains("dock-content"))
+                content.Classes.Add("dock-content");
             _contents[panel] = content;
         }
 
         return content;
+    }
+
+    /// <summary>Forgets the panels the layout no longer has and those the provider replaced, with their content.</summary>
+    private void ForgetStalePanels()
+    {
+        foreach (var (id, panel) in _panels.ToList())
+        {
+            if (Layout?.Contains(id) != true)
+            {
+                _panels.Remove(id);
+                _contents.Remove(panel);
+            }
+            else if (ContentProvider?.GetPanel(id) is { } current && !ReferenceEquals(current, panel))
+            {
+                _panels[id] = current;
+                _contents.Remove(panel);
+            }
+        }
     }
 
     /// <summary>Moves a panel into a new window over the group it is in, as large as the group.</summary>
@@ -226,6 +246,7 @@ public class DockHost : Control
             if (change.NewValue is DockLayout layout)
                 layout.Changed += OnLayoutChanged;
             CancelDrag();
+            Main.ForgetStalePanels();
             Reconcile();
             if (_float is null)
             {
@@ -277,6 +298,7 @@ public class DockHost : Control
         switch (e.Kind)
         {
             case DockChangeKind.Structure:
+                Main.ForgetStalePanels();
                 Reconcile();
                 if (_float is null)
                 {
