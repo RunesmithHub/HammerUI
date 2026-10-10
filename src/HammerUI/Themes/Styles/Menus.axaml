@@ -1,5 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:HammerUI.Controls">
 
   <Style Selector="Menu">
     <Setter Property="Background" Value="Transparent" />
@@ -24,6 +25,15 @@
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="Padding" Value="{DynamicResource MenuFlyoutPresenterThemePadding}" />
     <Setter Property="MinWidth" Value="200" />
+  </Style>
+
+  <!-- Menu items line up their columns only a layout pass later; this panel asks for that width from the first one -->
+  <Style Selector="MenuFlyoutPresenter, ContextMenu, MenuItem">
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <controls:MenuItemsPanel />
+      </ItemsPanelTemplate>
+    </Setter>
   </Style>
 
   <!-- Popups fade in; 120 ms is short enough to never delay the next action -->
