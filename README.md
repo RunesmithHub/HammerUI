@@ -26,7 +26,7 @@ dotnet nuget add source https://nuget.runesmith.dev/index.json --name runesmith-
 and the theme to your application's styles:
 
 ```xml
-<PackageReference Include="HammerUI" Version="0.1.0" />
+<PackageReference Include="HammerUI" Version="0.1.1" />
 ```
 
 ```xml
